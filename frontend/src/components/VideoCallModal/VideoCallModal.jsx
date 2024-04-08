@@ -2,7 +2,6 @@ import Peer from "peerjs";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useSocket } from "../../context/SocketProvider";
 import userContext from "../../context/userContext";
-import ImageAvatar from "../../ui/ImageAvatar";
 import {
   EndCall,
   MicOff,
@@ -43,6 +42,15 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
           videoRef.current.play();
         };
         setVideo(true);
+        const call = peerRef.current.call(peerId, stream);
+        console.log("call success", call);
+
+        call.on("stream", (remoteStream) => {
+          remoteVideoRef.current.srcObject = remoteStream;
+          remoteVideoRef.current.srcObject.onloadedmetadata = () => {
+            remoteVideoRef.current.play();
+          };
+        });
       })
       .catch((error) => {
         console.error("Error accessing media devices:", error);
@@ -84,7 +92,7 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
       });
     }
     console.log("rendered!!!");
-  }, [callAccepted, user.peerId]);
+  }, [callAccepted, user.peerId, video, audio, peerId]);
 
   const handleVideoCall = () => {
     document.getElementById("my_modal_video").close();
@@ -154,10 +162,16 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
     remoteVideoRef.current.srcObject.getTracks().forEach((track) => {
       track.stop();
     });
-    // if (peerRef.current) {
-    //   console.log("destroyed!!!");
-    //   peerRef.current.disconnect();
-    // }
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(
+      (stream) => {
+        stream.getTracks().forEach((track) => {
+          track.stop();
+        });
+      },
+      (error) => {
+        console.error("Error accessing media devices:", error);
+      }
+    );
     document.getElementById("my_modal_video").close();
     document.getElementById("my_modal_video_call").close();
   };
@@ -168,7 +182,7 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
         <div className="modal-box">
           <h3 className="font-bold text-lg text-center mt-2">Calling....</h3>
           <div className=" flex justify-center my-4">
-            <ImageAvatar userName="Pip Amboi" size={200} />
+            {/* <ImageAvatar userName="Pip Amboi" size={200} /> */}
           </div>
           <div className="flex mt-10 justify-center gap-3">
             <form method="dialog">
@@ -184,7 +198,7 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
             Incoming Call...
           </h3>
           <div className=" flex justify-center my-4">
-            <ImageAvatar userName="Pip Amboi" size={200} />
+            {/* <ImageAvatar userName="Pip Amboi" size={200} /> */}
           </div>
           <div className="flex mt-10 justify-center gap-3">
             <button
@@ -196,7 +210,7 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
               Accept !
             </button>
             <form method="dialog">
-              <button className="btn btn-error">Cancel</button>
+              <button className="btn btn-error">Decline!</button>
             </form>
           </div>
         </div>

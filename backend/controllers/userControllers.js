@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const createUser = async (req, res) => {
-  const { email, password, userName } = req.body;
+  const { email, password, userName, imageUrl } = req.body;
 
   let existingUser;
   try {
@@ -26,6 +26,7 @@ const createUser = async (req, res) => {
       email,
       password: bcryptPass,
       userName,
+      imageUrl,
     });
     await newUser.save();
     return res.status(201).json({

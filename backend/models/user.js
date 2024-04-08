@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   userName: { type: String, required: true },
-  // chats: [{ type: mongoose.Schema.Types.ObjectId, ref: "Conversation" }],
+  imageUrl: { type: String, required: true },
 });
 
 userSchema.plugin(mongoValidator);

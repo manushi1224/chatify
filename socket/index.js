@@ -1,6 +1,8 @@
+const dotenv = require("dotenv").config();
+
 const io = require("socket.io")(8900, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: `${process.env.API_URL}`,
   },
 });
 
@@ -50,6 +52,7 @@ io.on("connection", (socket) => {
     }
   );
 
+  // join room
   socket.on("join:room", (data) => {
     const user = getUser(data.senderId);
 

@@ -1,6 +1,7 @@
-import axios from "axios";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import { getConversationByUser } from "../apis/conversationApis";
+import { getAllMessages } from "../apis/messageApis";
 import ChatBox from "../components/ChatBox/ChatBox";
 import Conversations from "../components/Conversations/Conversations";
 import NavBar from "../components/NavBar/NavBar";
@@ -46,7 +47,7 @@ function Home() {
       setCurrentConversation(data.conversationId);
       document.getElementById("my_modal_video").showModal();
     });
-    socket.current.on("call:accept", (data) => {
+    socket.current.on("call:accept", () => {
       document.getElementById("my_modal_video").close();
       document.getElementById("my_call_modal").close();
       document.getElementById("my_modal_video_call").showModal();
@@ -59,10 +60,6 @@ function Home() {
 
   useEffect(() => {
     socket.current.emit("addUser", user.userId);
-    socket.current.on("getUsers", (users) => {
-      // console.log(users);
-      // setOnlineUsers(users);
-    });
   }, [user]);
 
   const fetchConversations = (response) => {
@@ -76,10 +73,8 @@ function Home() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_KEY}/api/conversations/conversationByUser/${user.userId}`
-        );
-        fetchConversations(response.data.conversations);
+        const { data } = await getConversationByUser(user.userId);
+        fetchConversations(data.conversations);
       } catch (error) {
         console.log(error);
       }
@@ -90,13 +85,9 @@ function Home() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_KEY}/api/messages/${currentConversation}`
-        );
-        setMessages(response.data.messages);
-      } catch (error) {
-        console.log(error);
-      }
+        const { data } = await getAllMessages(currentConversation);
+        setMessages(data.messages);
+      } catch (error) {}
     };
 
     fetchMessages();

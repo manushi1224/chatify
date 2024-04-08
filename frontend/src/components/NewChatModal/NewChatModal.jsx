@@ -3,9 +3,7 @@ import UserList from "../../ui/UserList";
 import axios from "axios";
 import userContext from "../../context/userContext";
 
-function NewChatModal({
-  socket,
-}) {
+function NewChatModal({ socket }) {
   const user = useContext(userContext);
   const [newChatUser, setNewChatUser] = useState([]);
 
@@ -38,6 +36,8 @@ function NewChatModal({
                   recieverId={u._id}
                   senderId={user.userId}
                   userName={u.userName}
+                  senderName={user.currentUser.userName}
+                  imageUrl={u.imageUrl}
                   newChat={true}
                   socket={socket}
                 />
@@ -48,7 +48,6 @@ function NewChatModal({
       </div>
       <div className="modal-action">
         <form method="dialog">
-          {/* if there is a button in form, it will close the modal */}
           <button className="btn">Close</button>
         </form>
       </div>

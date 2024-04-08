@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { getUserById } from "../../apis/userApis";
 
 function Conversations({ notification, conversations, userId, current }) {
   const [conversationUser, setConversationUser] = useState([]);
@@ -7,13 +7,9 @@ function Conversations({ notification, conversations, userId, current }) {
   useEffect(() => {
     const getUser = async (friends) => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_KEY}/api/user/${friends}`
-        );
-        setConversationUser(response.data.user);
-      } catch (error) {
-        console.log(error);
-      }
+        const { user } = await getUserById(friends);
+        setConversationUser(user);
+      } catch (error) {}
     };
     const friends = conversations.members.find((member) => member !== userId);
     getUser(friends);
@@ -21,18 +17,23 @@ function Conversations({ notification, conversations, userId, current }) {
 
   return (
     <span
-      className={`${current === conversations._id ? "bg-primary" : ""} w-full`}
+      className={`${
+        current === conversations._id ? "bg-primary" : ""
+      } w-full p-4`}
     >
       <div className="w-8 rounded-full">
         <img
           alt="profile"
-          src={`https://ui-avatars.com/api/?name=${conversationUser.userName}&background=random&rounded=true&size=50&font-size=0.4&bold=true&length=1`}
+          src={conversationUser?.imageUrl}
+          className="w-14 rounded-full"
         />
       </div>
       <span
         className={`${
-          current === conversations._id ? "text-base-100 font-semibold" : ""
-        } text-base text-base-content w-full`}
+          current === conversations._id
+            ? "text-base-100 font-semibold"
+            : "text-base text-base-content"
+        } w-full`}
       >
         {conversationUser.userName}
       </span>

@@ -63,7 +63,7 @@ const BellIcon = () => {
       viewBox="0 0 24 24"
       strokeWidth="1.5"
       stroke="currentColor"
-      className="w-8 h-8 mt-2"
+      className="w-8 h-8 mt-2w-8 hover:scale-125 duration-200 hover:stroke-blue-500"
     >
       <path
         strokeLinecap="round"
@@ -175,6 +175,38 @@ const MicOff = () => {
   );
 };
 
+const ImageUpload = () => {
+  return (
+    <svg
+      className="w-8 h-8"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+    >
+      <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z" />
+    </svg>
+  );
+};
+
+const NoNotification = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="gray"
+      className=" w-32 h-32 mx-auto mt-2"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M10.5 8.25h3l-3 4.5h3"
+      />
+    </svg>
+  );
+};
+
 export {
   SendButton,
   NewChat,
@@ -185,4 +217,6 @@ export {
   EndCall,
   StopVideo,
   MicOff,
+  ImageUpload,
+  NoNotification,
 };

@@ -8,9 +8,11 @@ function UserList({
   current,
   conversations,
   newChat,
+  imageUrl,
+  socket,
   senderId,
   recieverId,
-  socket,
+  senderName,
 }) {
   const [isLoading, setLoading] = useState(false);
   const handleSubmit = async (e) => {
@@ -23,7 +25,7 @@ function UserList({
           senderId,
           recieverId,
           text: "You have a new message!",
-          userName: userName,
+          userName: senderName,
           type: "request",
         }
       );
@@ -34,7 +36,7 @@ function UserList({
         senderId: senderId,
         recieverId: recieverId,
         text: "You have a new message!",
-        userName: userName,
+        userName: senderName,
         type: "request",
         notificationId: notify.data.notification._id,
       });
@@ -52,7 +54,7 @@ function UserList({
       <div className="grid grid-cols-8 content-center justify-between bg-primary-content gap-3 w-full rounded-md mb-2">
         <div className="col-span-1"></div>
         <div className="flex col-span-4">
-          <ImageAvatar userName={userName} size={30} />
+          <ImageAvatar src={imageUrl} />
           <span
             className={`${
               current === conversations?._id ? "text-neutral font-semibold" : ""
@@ -66,7 +68,6 @@ function UserList({
         {newChat && (
           <div className="modal-action my-3">
             <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
               <button
                 onClick={(e) => {
                   handleSubmit(e);

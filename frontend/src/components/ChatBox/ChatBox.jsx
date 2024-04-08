@@ -1,23 +1,21 @@
-import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
+import { getConversationById } from "../../apis/conversationApis";
+import { getUserById } from "../../apis/userApis";
 import userContext from "../../context/userContext";
 import ChatBubble from "../../ui/ChatBubble";
 import { SendButton } from "../../ui/svgs/AllSvgs";
 import ChatNav from "../ChatNav/ChatNav";
+import { sendNewMessage } from "../../apis/messageApis";
+import moment from "moment";
 
-function ChatBox({
-  messages,
-  conversationId,
-  socket,
-  recievedMessage,
-  callAccepted,
-}) {
+function ChatBox({ messages, conversationId, socket, recievedMessage }) {
   const user = useContext(userContext);
   const [chatRoomMessages, setChatRoomMessages] = useState();
   const [reciever, setReciever] = useState();
   const [newMessage, setNewMessage] = useState("");
   const [recieverId, setRecieverId] = useState();
+  const dates = new Set();
 
   useEffect(() => {
     recievedMessage &&
@@ -27,16 +25,12 @@ function ChatBox({
   useEffect(() => {
     const fetchRecieverId = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_KEY}/api/conversations/conversation/${conversationId}`
-        );
-        const recieverId = res.data.conversation.members.find(
+        const { data } = await getConversationById(conversationId);
+        const recieverId = data.conversation.members.find(
           (member) => member !== user.userId
         );
         setRecieverId(recieverId);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     };
 
     fetchRecieverId();
@@ -45,14 +39,9 @@ function ChatBox({
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_KEY}/api/user/${recieverId}`
-        );
-        // console.log(response);
-        setReciever(response.data.user);
-      } catch (error) {
-        // console.log(error);
-      }
+        const { user } = await getUserById(recieverId);
+        setReciever(user);
+      } catch (error) {}
     };
 
     fetchUser();
@@ -62,36 +51,50 @@ function ChatBox({
     setChatRoomMessages(messages);
   }, [messages]);
 
+  const renderDate = (chat, dateNum) => {
+    const timestampDate = moment(chat.createdAt, "YYYY-MM-DD").format(
+      "DD/MM/yyyy"
+    );
+    const yesterday = moment().subtract(1, "day").format("DD/MM/yyyy");
+    const todayDate = moment().format("DD/MM/yyyy");
+
+    dates.add(dateNum);
+    return (
+      <span className="flex justify-center">
+        <span className="bg-secondary-content rounded-xl px-3 py-1 text-sm">
+          {timestampDate === todayDate
+            ? "Today"
+            : timestampDate === yesterday
+            ? "Yesterday"
+            : timestampDate}
+        </span>
+      </span>
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (newMessage === "") {
       toast.error("Message cannot be empty");
       return;
     }
-    try {
-      if (!socket.current) {
-        toast.error("socket.current not connected");
-        return;
-      }
-      socket.current.emit("sendMessage", {
-        senderId: user.userId,
-        recieverId: recieverId,
-        text: newMessage,
-      });
-
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_KEY}/api/messages/`,
-        {
-          conversationId: conversationId,
-          sender: user.userId,
-          text: newMessage,
-        }
-      );
-      setChatRoomMessages([...chatRoomMessages, res.data.messages]);
-      setNewMessage("");
-    } catch (error) {
-      console.log(error);
+    if (!socket.current) {
+      toast.error("socket.current not connected");
+      return;
     }
+    socket.current.emit("sendMessage", {
+      senderId: user.userId,
+      recieverId: recieverId,
+      text: newMessage,
+    });
+
+    const { data } = await sendNewMessage({
+      conversationId,
+      sender: user.userId,
+      text: newMessage,
+    });
+    setChatRoomMessages([...chatRoomMessages, data.messages]);
+    setNewMessage("");
   };
 
   return (
@@ -101,24 +104,28 @@ function ChatBox({
           reciever={reciever}
           conversationId={conversationId}
           user={user}
-          callAccepted={callAccepted}
         />
       )}
-
       <Toaster></Toaster>
-      <div className="flex flex-col gap-4 w-full px-10 pt-20 pb-10">
+      <div className="flex flex-col gap-4 w-full px-10 pt-32 pb-10 h-[42rem]">
         {chatRoomMessages &&
           reciever &&
           chatRoomMessages.map((message, index) => {
-            return message.sender !== user.userId ? (
-              <ChatBubble
-                message={message}
-                isSender={true}
-                key={index}
-                imageAvatar={reciever.userName}
-              />
-            ) : (
-              <ChatBubble message={message} isSender={false} key={index} />
+            const dateNum = moment(message.createdAt).format("ddMMyyyy");
+            return (
+              <div key={message._id}>
+                {!dates.has(dateNum) && renderDate(message, dateNum)}
+                {message.sender !== user.userId ? (
+                  <ChatBubble
+                    reciever_profile={reciever.imageUrl}
+                    message={message}
+                    isSender={true}
+                    key={index}
+                  />
+                ) : (
+                  <ChatBubble message={message} isSender={false} key={index} />
+                )}
+              </div>
             );
           })}
       </div>

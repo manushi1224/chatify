@@ -6,14 +6,14 @@ const getTime = (time) => {
   return date.toLocaleTimeString();
 };
 
-function ChatBubble({ message, isSender, imageAvatar }) {
+function ChatBubble({ reciever_profile, message, isSender }) {
   return (
     <>
-      <div class={`flex ${isSender ? "" : "justify-end"} mb-4`}>
-        <div class="w-9 h-9 rounded-full flex items-center justify-center mr-2 mt-7">
+      <div className={`flex ${isSender ? "" : "justify-end"} mb-4`}>
+        <div className="w-9 h-9 rounded-full flex items-center justify-center mr-2 mt-7">
           {isSender && (
             <div className="chat-image avatar">
-              <ImageAvatar userName={imageAvatar} size={35} />
+              <ImageAvatar src={reciever_profile} />
             </div>
           )}
         </div>
@@ -26,12 +26,12 @@ function ChatBubble({ message, isSender, imageAvatar }) {
             {getTime(message.createdAt)}
           </time>
           <div
-            class={`flex max-w-96 rounded-lg px-3 py-2 gap-3 ${
+            className={`flex max-w-96 rounded-lg px-3 py-2 gap-3 ${
               isSender ? " bg-base-content" : "bg-secondary text-secondary-text"
             }`}
           >
             <p
-              class={` ${
+              className={` ${
                 isSender ? " text-base-100" : "text-secondary-content"
               }`}
             >

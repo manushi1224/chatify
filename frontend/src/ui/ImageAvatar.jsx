@@ -1,13 +1,10 @@
 import React from "react";
 
-function ImageAvatar({ children, userName, size }) {
+function ImageAvatar({ children, src }) {
   return (
     <div className="flex">
       <div className="w-full rounded-full flex col-span-5">
-        <img
-          alt="profile"
-          src={`https://ui-avatars.com/api/?name=${userName}&background=random&rounded=true&size=${size}&font-size=0.4&bold=true`}
-        />
+        <img alt="profile" className="w-14 rounded-full" src={src} />
       </div>
       {children}
     </div>

@@ -1,11 +1,10 @@
-import axios from "axios";
 import { useCallback, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { getUserById } from "./apis/userApis";
 import SocketProvider from "./context/SocketProvider";
 import userContext from "./context/userContext";
 import Home from "./pages/Home";
 import LogIn from "./pages/LogIn";
-import VideoCall from "./pages/VideoCall";
 
 import "./App.css";
 
@@ -45,14 +44,8 @@ function App() {
 
   const getUserData = async () => {
     if (token) {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_KEY}/api/user/${userId}`
-        );
-        setCurrentUser(response.data.user);
-      } catch (error) {
-        console.log(error);
-      }
+      const { user } = await getUserById(userId);
+      setCurrentUser(user);
     }
   };
 
@@ -76,7 +69,6 @@ function App() {
           <Routes>
             <Route path="/" element={<LogIn />}></Route>
             <Route path="/chat" element={<Home users={currentUser} />}></Route>
-            <Route path={`/call/:callId`} element={<VideoCall />}></Route>
           </Routes>
         </Router>
       </SocketProvider>
