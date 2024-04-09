@@ -12,7 +12,7 @@ import { loginUser, signupUser } from "../apis/userApis";
 import NavBar from "../components/NavBar/NavBar";
 import userContext from "../context/userContext";
 import { storage } from "../firebase";
-import { ImageUpload } from "../ui/svgs/AllSvgs";
+import ImageModal from "../components/ImageModal/ImageModal";
 
 function LogIn() {
   const authUser = useContext(userContext);
@@ -122,62 +122,20 @@ function LogIn() {
               <span
                 className="btn"
                 onClick={() =>
-                  document.getElementById("my_modal_1").showModal()
+                  document.getElementById("image_upload_modal").showModal()
                 }
               >
                 Upload Profile Picture
               </span>
-              <dialog id="my_modal_1" className="modal">
-                <div className="modal-box">
-                  <h3 className="font-bold text-lg">Upload Your Picture</h3>
-                  <div className="my-10">
-                    <div className="flex w-full items-center justify-center bg-grey-lighter">
-                      {!imagePreview ? (
-                        <label className="w-64 flex flex-col items-center px-4 py-6 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue hover:text-slate-500">
-                          <ImageUpload />
-                          <span className="mt-2 text-base leading-normal">
-                            Select a file
-                          </span>
-                          <input
-                            type="file"
-                            className="hidden"
-                            onChange={(e) => {
-                              setImagePreview(
-                                URL.createObjectURL(e.target.files[0])
-                              );
-                              setImageUpload(e.target.files[0]);
-                            }}
-                          />
-                        </label>
-                      ) : (
-                        <img
-                          src={imagePreview}
-                          alt="profile"
-                          className=" w-32 h-32 rounded-full bg-cover"
-                        ></img>
-                      )}
-                    </div>
-                    {loading ? (
-                      <div className="flex justify-center">
-                        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12"></div>
-                      </div>
-                    ) : (
-                      <span
-                        className="btn my-4 w-full btn-primary"
-                        onClick={() => uploadFile()}
-                      >
-                        Upload
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="modal-action">
-                    <form method="dialog">
-                      <button className="btn">Close</button>
-                    </form>
-                  </div>
-                </div>
-              </dialog>
+              <ImageModal
+                {...{
+                  imagePreview,
+                  setImagePreview,
+                  setImageUpload,
+                  uploadFile,
+                  loading,
+                }}
+              />
             </>
           )}
           <label className="input input-bordered flex items-center gap-2">

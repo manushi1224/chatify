@@ -33,7 +33,7 @@ function ChatNav({ reciever, conversationId, user }) {
           </h3>
         </ImageAvatar>
         <button onClick={() => handleVideoCall()}>
-          <VideoIcon />
+          <VideoIcon fill={true} />
         </button>
       </div>
     </div>

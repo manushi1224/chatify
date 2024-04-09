@@ -1,11 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const socketio = require("socket.io");
 const { connectDb } = require("./db/connectDb");
 
 const app = express();
-const server = require("http").Server(app);
 const userRoutes = require("./routes/userRoutes");
 const conversationRoutes = require("./routes/conversationsRoute");
 const messageRoutes = require("./routes/messagesRoute");

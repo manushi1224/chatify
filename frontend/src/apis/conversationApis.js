@@ -32,4 +32,20 @@ const getConversationByUser = async (userId) => {
   } catch (error) {}
 };
 
-export { getConversationById, getConversationByUserId, getConversationByUser };
+const createNewConversation = async ({ senderId, recieverId }) => {
+  try {
+    return await axios.post(`${url}/api/conversations/`, {
+      senderId,
+      recieverId,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export {
+  getConversationById,
+  getConversationByUserId,
+  getConversationByUser,
+  createNewConversation,
+};

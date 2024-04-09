@@ -1,10 +1,19 @@
 import React from "react";
+import userAvatar from "../assets/user.jpg";
 
-function ImageAvatar({ children, src }) {
+function ImageAvatar({ children, src, width }) {
   return (
-    <div className="flex">
-      <div className="w-full rounded-full flex col-span-5">
-        <img alt="profile" className="w-14 rounded-full" src={src} />
+    <div className="flex gap-2">
+      <div className="rounded-full">
+        <img
+          alt="profile"
+          className={
+            width
+              ? `w-${width} h-${width} rounded-full`
+              : `w-8 h-8 rounded-full`
+          }
+          src={src ? src : userAvatar}
+        />
       </div>
       {children}
     </div>

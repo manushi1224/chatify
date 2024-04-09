@@ -31,6 +31,7 @@ io.on("connection", (socket) => {
   // send message
   socket.on("sendMessage", ({ senderId, recieverId, text }) => {
     const user = getUser(recieverId);
+    if (user === undefined) return console.log("User not found.");
     io.to(user.socketId).emit("getMessage", {
       senderId,
       text,
@@ -43,6 +44,7 @@ io.on("connection", (socket) => {
     "sendNotification",
     ({ senderId, recieverId, text, userName, type }) => {
       const user = getUser(recieverId);
+      if (user === undefined) return console.log("User not found.");
       io.to(user.socketId).emit("getNotification", {
         senderId,
         text,
@@ -55,7 +57,7 @@ io.on("connection", (socket) => {
   // join room
   socket.on("join:room", (data) => {
     const user = getUser(data.senderId);
-
+    if (user === undefined) return console.log("User not found.");
     io.to(user.socketId).emit("user:joined", {
       senderId: data.senderId,
       conversationId: data.conversationId,
@@ -70,6 +72,7 @@ io.on("connection", (socket) => {
   socket.on("call:notification", (data) => {
     console.log("incoming call...", data);
     const user = getUser(data.recieverId);
+    if (user === undefined) return console.log("User not found.");
     io.to(user.socketId).emit("call:notification", data);
   });
 
@@ -77,6 +80,7 @@ io.on("connection", (socket) => {
   socket.on("call:accept", (data) => {
     console.log("call accepted...", data);
     const user = getUser(data.recieverId);
+    if (user === undefined) return console.log("User not found.");
     io.to(user.socketId).emit("call:accept", data);
   });
 

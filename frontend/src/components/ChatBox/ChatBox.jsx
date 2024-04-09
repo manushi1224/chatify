@@ -1,13 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
+import moment from "moment";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { getConversationById } from "../../apis/conversationApis";
+import { sendNewMessage } from "../../apis/messageApis";
 import { getUserById } from "../../apis/userApis";
 import userContext from "../../context/userContext";
+import renderDate from "../../lib/renderDate";
 import ChatBubble from "../../ui/ChatBubble";
 import { SendButton } from "../../ui/svgs/AllSvgs";
 import ChatNav from "../ChatNav/ChatNav";
-import { sendNewMessage } from "../../apis/messageApis";
-import moment from "moment";
 
 function ChatBox({ messages, conversationId, socket, recievedMessage }) {
   const user = useContext(userContext);
@@ -15,6 +16,7 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
   const [reciever, setReciever] = useState();
   const [newMessage, setNewMessage] = useState("");
   const [recieverId, setRecieverId] = useState();
+  const chatRef = useRef();
   const dates = new Set();
 
   useEffect(() => {
@@ -49,28 +51,8 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
 
   useEffect(() => {
     setChatRoomMessages(messages);
-  }, [messages]);
-
-  const renderDate = (chat, dateNum) => {
-    const timestampDate = moment(chat.createdAt, "YYYY-MM-DD").format(
-      "DD/MM/yyyy"
-    );
-    const yesterday = moment().subtract(1, "day").format("DD/MM/yyyy");
-    const todayDate = moment().format("DD/MM/yyyy");
-
-    dates.add(dateNum);
-    return (
-      <span className="flex justify-center">
-        <span className="bg-secondary-content rounded-xl px-3 py-1 text-sm">
-          {timestampDate === todayDate
-            ? "Today"
-            : timestampDate === yesterday
-            ? "Yesterday"
-            : timestampDate}
-        </span>
-      </span>
-    );
-  };
+    chatRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, reciever]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +80,7 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full overflow-y-hidden">
       {reciever && (
         <ChatNav
           reciever={reciever}
@@ -107,14 +89,14 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
         />
       )}
       <Toaster></Toaster>
-      <div className="flex flex-col gap-4 w-full px-10 pt-32 pb-10 h-[42rem]">
+      <div className="flex flex-col gap-4 w-full px-10 pt-24 pb-32">
         {chatRoomMessages &&
           reciever &&
           chatRoomMessages.map((message, index) => {
-            const dateNum = moment(message.createdAt).format("ddMMyyyy");
+            const dateNum = moment(message.createdAt).format("DD-MM-yyyy");
             return (
-              <div key={message._id}>
-                {!dates.has(dateNum) && renderDate(message, dateNum)}
+              <div key={message._id} ref={chatRef}>
+                {!dates.has(dateNum) && renderDate(message, dateNum, dates)}
                 {message.sender !== user.userId ? (
                   <ChatBubble
                     reciever_profile={reciever.imageUrl}
@@ -129,23 +111,23 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
             );
           })}
       </div>
-      <div className="sticky bottom-0 rounded-t-xl bg-success-content p-4">
+      <div className="fixed w-[67%] bottom-0 rounded-t-xl bg-success-content p-4">
         <form
           onSubmit={(e) => {
             handleSubmit(e);
           }}
           className="flex"
         >
-          <textarea
+          <input
             placeholder="Type Something..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="textarea textarea-bordered textarea-base w-full"
-          ></textarea>
+            className="textarea textarea-bordered w-full"
+          ></input>
           <button
             type="submit"
             disabled={newMessage === ""}
-            className="flex items-center bg-primary text-primary-content gap-1 px-4 py-2 mx-4 my-4 font-semibold tracking-widest rounded-md duration-300 hover:gap-2 hover:translate-x-3"
+            className="flex disabled:opacity-60 items-center bg-primary text-primary-content gap-1 px-4 py-2 mx-4 my-4 font-semibold tracking-widest rounded-md"
           >
             Send
             <SendButton />

@@ -115,4 +115,25 @@ const displayUsersById = async (req, res) => {
   }
 };
 
-module.exports = { displayUsers, loginUser, createUser, displayUsersById };
+const editUser = async (req, res) => {
+  const uid = req.params.id;
+  const { userName, imageUrl } = req.body;
+  let user;
+  try {
+    user = await userModel.findById(uid);
+    user.userName = userName || user.userName;
+    user.imageUrl = imageUrl || user.imageUrl;
+    await user.save();
+    return res.status(200).json({ user: user });
+  } catch (error) {
+    return res.status(500).json({ message: `${error.message}` });
+  }
+};
+
+module.exports = {
+  displayUsers,
+  loginUser,
+  createUser,
+  displayUsersById,
+  editUser,
+};

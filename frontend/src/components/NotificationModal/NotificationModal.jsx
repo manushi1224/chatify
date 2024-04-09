@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { getConversationByUserId } from "../../apis/conversationApis";
+import {
+  createNewConversation,
+  getConversationByUserId,
+} from "../../apis/conversationApis";
+import {
+  deleteNotification,
+  getAllNotifications,
+  sendNotification,
+} from "../../apis/notificationApis";
 import { NoNotification } from "../../ui/svgs/AllSvgs";
+import ResponseButtons from "../../lib/renderButtons";
 
 function NotificationModal({
   notification,
@@ -14,17 +22,6 @@ function NotificationModal({
 }) {
   const [notify, setNotify] = useState();
 
-  const fetchAllConversationByUser = async (notificationId) => {
-    try {
-      const { data } = await getConversationByUserId(userId);
-      fetchConversations(data.conversations);
-      settingCurrentConversation(data.conversation._id);
-    } catch (error) {
-      console.log(error);
-    }
-    handleDelete(notificationId);
-  };
-
   useEffect(() => {
     notification && setNotify((prev) => [...prev, notification]);
   }, [notification]);
@@ -32,18 +29,23 @@ function NotificationModal({
   useEffect(() => {
     try {
       const fetchAllNotifications = async () => {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_KEY}/api/notifications/${userId}`
-        );
-        setNotify(res.data.notifications);
+        const { data } = await getAllNotifications(userId);
+        setNotify(data.notifications);
       };
       fetchAllNotifications();
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   }, [userId, notification]);
 
-  const handleAccept = async (recieverId, userName, notificationId) => {
+  const fetchAllConversationByUser = async (notificationId) => {
+    try {
+      const { data } = await getConversationByUserId(userId);
+      fetchConversations(data.conversations);
+      settingCurrentConversation(data.conversation._id);
+    } catch (error) {}
+    handleDelete(notificationId);
+  };
+
+  const handleAccept = async (recieverId, notificationId) => {
     socket.current.emit("sendNotification", {
       senderId: userId,
       recieverId: recieverId,
@@ -52,70 +54,54 @@ function NotificationModal({
       type: "accepted",
     });
     try {
-      await axios.post(`${process.env.REACT_APP_API_KEY}/api/notifications`, {
+      await sendNotification({
         senderId: userId,
         recieverId: recieverId,
         text: "Your request has been accepted",
         userName: senderName,
         type: "accepted",
       });
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_KEY}/api/conversations/`,
-        {
-          senderId: userId,
-          recieverId,
-        }
-      );
+      const response = await createNewConversation({
+        senderId: userId,
+        recieverId,
+      });
       fetchConversations([...conversations, response.data.conversation]);
       settingCurrentConversation(response.data.conversation._id);
       handleDelete(notificationId);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
-  const handleDecline = async (notificationId, senderId, userName) => {
-    // here senderId is the recieverId of the notification
-    // suppose pip send a request to ravi and ravi declines it
-    // so pip is the senderId and ravi is the recieverId
+  const handleDecline = async (notificationId, senderId) => {
+    // here senderId is the recieverId of the notification, suppose pip send a request to ravi and ravi declines it, so pip is the senderId and ravi is the recieverId
     // so we have to send the notification to pip that ravi has declined the request
 
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_KEY}/api/notifications`,
-        {
-          senderId: userId,
-          recieverId: senderId,
-          text: "Your request has been declined",
-          userName: senderName,
-          type: "response",
-        }
-      );
+      const { data } = await sendNotification({
+        senderId: userId,
+        recieverId: senderId,
+        text: "Your request has been declined",
+        userName: senderName,
+        type: "response",
+      });
       socket.current.emit("sendNotification", {
         senderId: userId,
         recieverId: senderId,
         userName: senderName,
         text: "Your request has been declined",
         type: "response",
-        notificationId: res.data.notification._id,
+        notificationId: data.notification._id,
       });
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
     handleDelete(notificationId);
   };
 
   const handleDelete = async (notificationId) => {
     try {
-      const res = await axios.delete(
-        `${process.env.REACT_APP_API_KEY}/api/notifications/${notificationId}`
-      );
+      const res = await deleteNotification(notificationId);
       if (res.status === 200) {
         setNotify(notify.filter((ntf) => ntf._id !== notificationId));
       }
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   return (
@@ -148,52 +134,14 @@ function NotificationModal({
                 </div>
                 <div className="modal-action">
                   <form method="dialog">
-                    {ntfn.type === "request" ? (
-                      <div className="flex gap-3 mt-2">
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => {
-                            handleAccept(
-                              ntfn.senderId,
-                              ntfn.userName,
-                              ntfn._id
-                            );
-                          }}
-                        >
-                          accept
-                        </button>
-                        <button
-                          className="btn btn-sm btn-error"
-                          onClick={() =>
-                            handleDecline(
-                              ntfn._id,
-                              ntfn.senderId,
-                              ntfn.userName
-                            )
-                          }
-                        >
-                          decline
-                        </button>
-                      </div>
-                    ) : ntfn.type === "accepted" ? (
-                      <div className="flex gap-3 mt-2" key={ntfn._id}>
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => fetchAllConversationByUser(ntfn._id)}
-                        >
-                          Chat!!
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-3 mt-2" key={ntfn._id}>
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => handleDelete(ntfn._id)}
-                        >
-                          OK
-                        </button>
-                      </div>
-                    )}
+                    <ResponseButtons
+                      ntfn={ntfn}
+                      request={ntfn.type}
+                      handleAccept={handleAccept}
+                      handleDecline={handleDecline}
+                      fetchAllConversationByUser={fetchAllConversationByUser}
+                      handleDelete={handleDelete}
+                    />
                   </form>
                 </div>
               </div>

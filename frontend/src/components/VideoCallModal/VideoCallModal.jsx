@@ -71,7 +71,6 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
         navigator.mediaDevices
           .getUserMedia({ video: true, audio: true })
           .then((stream) => {
-            console.log(stream);
             localVideoRef.current.srcObject = stream;
             localVideoRef.current.onloadedmetadata = () => {
               localVideoRef.current.play();
@@ -231,6 +230,7 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
             <video
               ref={remoteVideoRef}
               autoPlay
+              muted={audio}
               className=" rounded-lg shadow shadow-black"
             />
           </div>

@@ -7,6 +7,7 @@ import Conversations from "../components/Conversations/Conversations";
 import NavBar from "../components/NavBar/NavBar";
 import VideoCallModal from "../components/VideoCallModal/VideoCallModal";
 import userContext from "../context/userContext";
+import { ThreeDots } from "../ui/svgs/AllSvgs";
 
 function Home() {
   const [conversations, setConversations] = useState([]);
@@ -105,6 +106,7 @@ function Home() {
         <div className="col-span-1">
           <NavBar
             notification={notification}
+            setNotification={setNotification}
             socket={socket}
             conversations={conversations}
             fetchConversations={fetchConversations}
@@ -113,11 +115,24 @@ function Home() {
         </div>
         <div className="col-span-3">
           <ul className="menu px-4 w-full min-h-full text-base-content">
-            <div className="bg-base-200 rounded-xl p-4 mb-2">
+            <div className="bg-base-200 rounded-xl p-4 mb-2 flex justify-between">
               <h3 className="text-xl font-bold">Chat</h3>
+              <div className="dropdown dropdown-left">
+                <div tabIndex={0} role="button" className="h-5 pt-1">
+                  <ThreeDots />
+                </div>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content z-[1] menu shadow bg-secondary-content rounded-box w-52 mt-4"
+                >
+                  <li>
+                    <span onClick={() => user.logout()}>Log Out</span>
+                  </li>
+                </ul>
+              </div>
             </div>
             <div className="mt-2 h-full bg-primary-content p-2 rounded-xl">
-              {conversations &&
+              {conversations.length !== 0 ? (
                 conversations.map((con) => {
                   return (
                     <li
@@ -135,7 +150,20 @@ function Home() {
                       />
                     </li>
                   );
-                })}
+                })
+              ) : (
+                <div className="flex flex-col">
+                  <span className="p-5 text-center">No Conversation!</span>
+                  <span
+                    className="text-center text-secondary cursor-pointer"
+                    onClick={() => {
+                      document.getElementById("my_modal_1").showModal();
+                    }}
+                  >
+                    Get Started!
+                  </span>
+                </div>
+              )}
             </div>
           </ul>
         </div>

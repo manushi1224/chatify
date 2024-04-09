@@ -41,23 +41,6 @@ function ChatBubble({ reciever_profile, message, isSender }) {
         </div>
       </div>
     </>
-    // <div
-    //   className={`chat chat-${isSender ? "start" : "end"}`}
-    //   key={message._id}
-    // >
-    // {isSender && (
-    //   <div className="chat-image avatar">
-    //     <ImageAvatar userName={imageAvatar} size={35} />
-    //   </div>
-    // )}
-
-    // <div className="chat-header">
-    //   <time className="text-xs opacity-50">{getTime(message.createdAt)}</time>
-    // </div>
-    //   <div className={`chat-bubble ${isSender ? "chat-bubble-secondary" : ""}`}>
-    //     {message.text}
-    //   </div>
-    // </div>
   );
 }
 

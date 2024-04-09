@@ -27,4 +27,21 @@ const signupUser = async (formData) => {
   }
 };
 
-export { getUserById, loginUser, signupUser };
+const editUserProfile = async (userId, formData, userContext) => {
+  fetch(`http://localhost:5000/api/user/${userId}`, {
+    method: "PATCH",
+    body: JSON.stringify(formData),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      userContext.getUserData();
+    })
+    .catch((error) => {
+      return error;
+    });
+};
+
+export { getUserById, loginUser, signupUser, editUserProfile };

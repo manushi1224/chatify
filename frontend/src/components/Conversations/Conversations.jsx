@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getUserById } from "../../apis/userApis";
+import ImageAvatar from "../../ui/ImageAvatar";
 
 function Conversations({ notification, conversations, userId, current }) {
   const [conversationUser, setConversationUser] = useState([]);
@@ -22,11 +23,7 @@ function Conversations({ notification, conversations, userId, current }) {
       } w-full p-4`}
     >
       <div className="w-8 rounded-full">
-        <img
-          alt="profile"
-          src={conversationUser?.imageUrl}
-          className="w-14 rounded-full"
-        />
+        <ImageAvatar src={conversationUser?.imageUrl} />
       </div>
       <span
         className={`${
