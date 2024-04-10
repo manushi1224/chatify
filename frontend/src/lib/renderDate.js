@@ -1,9 +1,10 @@
 import moment from "moment";
 
 const renderDate = (chat, dateNum, dates) => {
-  const timestampDate = moment(chat.createdAt, "YYYY-MM-DD").format(
-    "DD/MM/yyyy"
-  );
+  const timestampDate = moment(
+    chat.createdAt || new Date().toLocaleDateString,
+    "YYYY-MM-DD"
+  ).format("DD/MM/yyyy");
   const yesterday = moment().subtract(1, "day").format("DD/MM/yyyy");
   const todayDate = moment().format("DD/MM/yyyy");
 

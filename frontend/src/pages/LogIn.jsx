@@ -73,7 +73,7 @@ function LogIn() {
         if (response.data.success) {
           toast.success(response.data.message);
           setTimeout(() => {
-            window.location.href("/");
+            setSignupForm(false);
           }, 2000);
           return;
         }

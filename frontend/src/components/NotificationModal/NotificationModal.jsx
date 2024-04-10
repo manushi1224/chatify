@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   createNewConversation,
   getConversationByUserId,
 } from "../../apis/conversationApis";
 import {
   deleteNotification,
-  getAllNotifications,
   sendNotification,
 } from "../../apis/notificationApis";
-import { NoNotification } from "../../ui/svgs/AllSvgs";
 import ResponseButtons from "../../lib/renderButtons";
+import { NoNotification } from "../../ui/svgs/AllSvgs";
 
 function NotificationModal({
-  notification,
+  notify,
+  setNotify,
   userId,
   socket,
   senderName,
@@ -20,22 +20,6 @@ function NotificationModal({
   fetchConversations,
   settingCurrentConversation,
 }) {
-  const [notify, setNotify] = useState();
-
-  useEffect(() => {
-    notification && setNotify((prev) => [...prev, notification]);
-  }, [notification]);
-
-  useEffect(() => {
-    try {
-      const fetchAllNotifications = async () => {
-        const { data } = await getAllNotifications(userId);
-        setNotify(data.notifications);
-      };
-      fetchAllNotifications();
-    } catch (error) {}
-  }, [userId, notification]);
-
   const fetchAllConversationByUser = async (notificationId) => {
     try {
       const { data } = await getConversationByUserId(userId);
@@ -112,19 +96,21 @@ function NotificationModal({
           ✕
         </button>
       </form>
-      <div className="flex justify-between mt-4">
+      <div className="flex flex-col justify-between mt-4">
         {notify && notify.length !== 0 ? (
           notify.map((ntfn) => {
             return (
               <div
-                className="bg-primary-content rounded-md p-2 flex w-full justify-around mb-2"
                 key={ntfn._id}
+                className="bg-primary-content rounded-md p-2 flex w-full justify-around mb-2"
               >
                 <div>
                   <span>{ntfn?.text}</span>
                   <h3 className="font-bold text-lg">
                     {ntfn.type === "request"
                       ? `${ntfn?.userName} wants to connect!`
+                      : ntfn.type === "notification"
+                      ? `from ${ntfn.userName}`
                       : `${ntfn?.userName} has ${
                           ntfn.type === "accepted"
                             ? "accepted your request! :)"
@@ -132,18 +118,14 @@ function NotificationModal({
                         }`}
                   </h3>
                 </div>
-                <div className="modal-action">
-                  <form method="dialog">
-                    <ResponseButtons
-                      ntfn={ntfn}
-                      request={ntfn.type}
-                      handleAccept={handleAccept}
-                      handleDecline={handleDecline}
-                      fetchAllConversationByUser={fetchAllConversationByUser}
-                      handleDelete={handleDelete}
-                    />
-                  </form>
-                </div>
+                <ResponseButtons
+                  ntfn={ntfn}
+                  request={ntfn.type}
+                  handleAccept={handleAccept}
+                  handleDecline={handleDecline}
+                  fetchAllConversationByUser={fetchAllConversationByUser}
+                  handleDelete={handleDelete}
+                />
               </div>
             );
           })

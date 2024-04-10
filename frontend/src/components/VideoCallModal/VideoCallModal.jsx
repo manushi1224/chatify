@@ -10,7 +10,14 @@ import {
   VideoIcon,
 } from "../../ui/svgs/AllSvgs";
 
-function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
+function VideoCallModal({
+  peerId,
+  callAccepted,
+  recieverId,
+  current,
+  videoStatus,
+  hangupCall,
+}) {
   const user = useContext(userContext);
   const socket = useSocket();
   const localVideoRef = useRef(null);
@@ -20,41 +27,38 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
   const peerRef = useRef(null);
 
   useEffect(() => {
+    if (!videoStatus) {
+      console.log("video status", videoStatus);
+      remoteVideoRef.current.srcObject.getTracks()[1].enabled = false;
+    }
+    if (remoteVideoRef.current.srcObject !== null) {
+      remoteVideoRef.current.srcObject.getTracks()[1].enabled = videoStatus;
+    }
+  }, [videoStatus]);
+
+  useEffect(() => {
     peerRef.current = new Peer(user.peerId);
     return () => {
       peerRef.current.disconnect();
     };
   }, [user.peerId]);
 
-  const stopVideo = (videoRef) => {
-    videoRef.current.srcObject.getTracks().forEach((track) => {
-      track.stop();
+  const stopVideo = () => {
+    localVideoRef.current.srcObject.getTracks()[1].enabled = false;
+    socket.emit("video_status", {
+      recieverId: recieverId,
+      status: false,
     });
     setVideo(false);
   };
 
-  const startVideo = (videoRef) => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play();
-        };
-        setVideo(true);
-        const call = peerRef.current.call(peerId, stream);
-        console.log("call success", call);
-
-        call.on("stream", (remoteStream) => {
-          remoteVideoRef.current.srcObject = remoteStream;
-          remoteVideoRef.current.srcObject.onloadedmetadata = () => {
-            remoteVideoRef.current.play();
-          };
-        });
-      })
-      .catch((error) => {
-        console.error("Error accessing media devices:", error);
-      });
+  const startVideo = () => {
+    localVideoRef.current.srcObject.getTracks()[1].enabled = true;
+    socket.emit("video_status", {
+      recieverId: recieverId,
+      status: true,
+    });
+    setVideo(true);
   };
 
   useEffect(() => {
@@ -90,8 +94,13 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
           });
       });
     }
-    console.log("rendered!!!");
   }, [callAccepted, user.peerId, video, audio, peerId]);
+
+  useEffect(() => {
+    if (hangupCall) {
+      handleDisconnect();
+    }
+  }, [hangupCall]);
 
   const handleVideoCall = () => {
     document.getElementById("my_modal_video").close();
@@ -106,29 +115,6 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
       senderId: user.userId,
     });
 
-    peerRef.current.on("call", (call) => {
-      navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          localVideoRef.current.srcObject = stream;
-          localVideoRef.current.onloadedmetadata = () => {
-            localVideoRef.current.play();
-          };
-
-          call.answer(stream);
-
-          call.on("stream", (remoteStream) => {
-            remoteVideoRef.current.srcObject = remoteStream;
-            remoteVideoRef.current.srcObject.onloadedmetadata = () => {
-              remoteVideoRef.current.play();
-            };
-          });
-        })
-        .catch((error) => {
-          console.error("Error accessing media devices:", error);
-        });
-    });
-
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
@@ -137,7 +123,6 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
           localVideoRef.current.play();
         };
         const call = peerRef.current.call(peerId, stream);
-        console.log("call success", call);
 
         call.on("stream", (remoteStream) => {
           remoteVideoRef.current.srcObject = remoteStream;
@@ -175,14 +160,19 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
     document.getElementById("my_modal_video_call").close();
   };
 
+  const hangupCallHandler = () => {
+    handleDisconnect();
+    socket.emit("disconnect_call", {
+      recieverId: recieverId,
+    });
+  };
+
   return (
     <div>
       <dialog id="my_call_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg text-center mt-2">Calling....</h3>
-          <div className=" flex justify-center my-4">
-            {/* <ImageAvatar userName="Pip Amboi" size={200} /> */}
-          </div>
+          <div className=" flex justify-center my-4"></div>
           <div className="flex mt-10 justify-center gap-3">
             <form method="dialog">
               <button className="btn btn-error">Cancel</button>
@@ -196,9 +186,7 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
           <h3 className="font-bold text-lg text-center mt-2">
             Incoming Call...
           </h3>
-          <div className=" flex justify-center my-4">
-            {/* <ImageAvatar userName="Pip Amboi" size={200} /> */}
-          </div>
+          <div className=" flex justify-center my-4"></div>
           <div className="flex mt-10 justify-center gap-3">
             <button
               className="btn btn-success"
@@ -222,6 +210,8 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
             <video
               ref={localVideoRef}
               autoPlay
+              height={200}
+              width={100}
               muted={audio}
               className=" rounded-md h-20 absolute top-16 right-10 shadow-lg shadow-black"
             />
@@ -230,6 +220,8 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
             <video
               ref={remoteVideoRef}
               autoPlay
+              height={500}
+              width={550}
               muted={audio}
               className=" rounded-lg shadow shadow-black"
             />
@@ -253,14 +245,14 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
             {video ? (
               <button
                 className="rounded-[50%] bg-secondary p-4"
-                onClick={() => stopVideo(localVideoRef)}
+                onClick={() => stopVideo()}
               >
                 <StopVideo />
               </button>
             ) : (
               <button
                 className="rounded-[50%] bg-secondary-content p-4"
-                onClick={() => startVideo(localVideoRef)}
+                onClick={() => startVideo()}
               >
                 <VideoIcon />
               </button>
@@ -269,7 +261,7 @@ function VideoCallModal({ peerId, callAccepted, recieverId, current }) {
               <button
                 className="bg-error rounded-[50%] p-4"
                 onClick={() => {
-                  handleDisconnect();
+                  hangupCallHandler();
                 }}
               >
                 <EndCall />

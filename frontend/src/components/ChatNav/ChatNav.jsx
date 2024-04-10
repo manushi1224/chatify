@@ -12,7 +12,7 @@ function ChatNav({ reciever, conversationId, user }) {
       recieverId: reciever._id,
       senderId: user.userId,
       conversationId,
-      userName: user.userName,
+      userName: user.currentUser.userName,
       peerId: user.peerId,
     });
 

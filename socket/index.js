@@ -57,31 +57,57 @@ io.on("connection", (socket) => {
   // join room
   socket.on("join:room", (data) => {
     const user = getUser(data.senderId);
+    const reciever = getUser(data.recieverId);
     if (user === undefined) return console.log("User not found.");
-    io.to(user.socketId).emit("user:joined", {
+    if (reciever === undefined) return console.log("Reciever not found.");
+    io.to(reciever.socketId).emit("user:joined", {
       senderId: data.senderId,
       conversationId: data.conversationId,
       id: user.socketId,
     });
     socket.join(data.conversationId);
-    // console.log(socket.rooms);
     io.to(user.socketId).emit("join:room", data);
   });
 
   // incoming call notification
   socket.on("call:notification", (data) => {
-    console.log("incoming call...", data);
+    console.log("incoming call...");
     const user = getUser(data.recieverId);
-    if (user === undefined) return console.log("User not found.");
+    const sender = getUser(data.senderId);
+    if (user === undefined) {
+      socket
+        .to(sender.socketId)
+        .emit("call:notification", { status: "offline", data });
+      return console.log("User not found. in call notification.");
+    }
     io.to(user.socketId).emit("call:notification", data);
   });
 
   // call accept notification
   socket.on("call:accept", (data) => {
-    console.log("call accepted...", data);
+    console.log("call accepted...");
+    console.log(data.recieverId);
     const user = getUser(data.recieverId);
     if (user === undefined) return console.log("User not found.");
     io.to(user.socketId).emit("call:accept", data);
+  });
+
+  // video call
+  socket.on("video_status", (data) => {
+    console.log("video status");
+    console.log(data.recieverId);
+    const user = getUser(data.recieverId);
+    if (user === undefined) return console.log("User not found.");
+    io.to(user.socketId).emit("video_status", data);
+  });
+
+  // disconnect call
+  socket.on("disconnect_call", (data) => {
+    console.log("disconnect call");
+    console.log(data.recieverId);
+    const user = getUser(data.recieverId);
+    if (user === undefined) return console.log("User not found.");
+    io.to(user.socketId).emit("disconnect_call", data);
   });
 
   // disconnect

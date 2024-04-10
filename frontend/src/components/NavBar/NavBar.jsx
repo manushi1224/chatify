@@ -7,6 +7,7 @@ import { BellIcon, NewChat } from "../../ui/svgs/AllSvgs";
 import NewChatModal from "../NewChatModal/NewChatModal";
 import NotificationModal from "../NotificationModal/NotificationModal";
 import SideBar from "../SideBar/SideBar";
+import { getAllNotifications } from "../../apis/notificationApis";
 
 function NavBar({
   notification,
@@ -19,6 +20,7 @@ function NavBar({
   const authUser = useContext(userContext);
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
+  const [notify, setNotify] = useState();
 
   useEffect(() => {
     if (!authUser.isLoggedIn) {
@@ -30,6 +32,21 @@ function NavBar({
     authUser.getUserData();
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (!authUser.userId) return;
+    try {
+      const fetchAllNotifications = async () => {
+        const { data } = await getAllNotifications(authUser.userId);
+        setNotify(data.notifications);
+      };
+      fetchAllNotifications();
+    } catch (error) {}
+  }, [notification, authUser.userId]);
+
+  useEffect(() => {
+    notification && setNotify((prev) => [...prev, notification]);
+  }, [notification, setNotify]);
 
   const handleNotifications = () => {
     setNotification({ ...notification, text: "" });
@@ -68,7 +85,7 @@ function NavBar({
             {/* BellIcon */}
             <div onClick={() => handleNotifications()}>
               <div className="group relative">
-                {notification?.text ? (
+                {(notify && notification?.text) || notify?.length !== 0 ? (
                   <span className="inline-flex items-center justify-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium ">
                     <span className="size-2 inline-block rounded-full bg-blue-800 dark:bg-red-900"></span>
                     <BellIcon />
@@ -85,7 +102,8 @@ function NavBar({
             </div>
             <dialog id="my_modal_3" className="modal">
               <NotificationModal
-                notification={notification}
+                notify={notify}
+                setNotify={setNotify}
                 userId={authUser.userId}
                 senderName={authUser?.currentUser?.userName}
                 socket={socket}

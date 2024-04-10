@@ -8,14 +8,18 @@ import NavBar from "../components/NavBar/NavBar";
 import VideoCallModal from "../components/VideoCallModal/VideoCallModal";
 import userContext from "../context/userContext";
 import { ThreeDots } from "../ui/svgs/AllSvgs";
+import { notificationHandler } from "../lib/notificationHandler";
+import toast, { Toaster } from "react-hot-toast";
 
 function Home() {
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [recievedMessage, setRecievedMessage] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
+  const [hangupCall, setHangupCall] = useState(false);
   const [notification, setNotification] = useState();
   const [recieverId, setRecieverId] = useState();
+  const [videoStatus, setVideoStatus] = useState(true);
   const [peerId, setPeerId] = useState("");
   const socket = useRef();
   const [messages, setMessages] = useState([]);
@@ -41,12 +45,33 @@ function Home() {
         notificationId: data.notificationId,
       });
     });
-    socket.current.on("call:notification", (data) => {
+    socket.current.on("join:room", (data) => {
+      console.log("join room", data.recieverId);
+      setRecieverId(data.recieverId);
+    });
+    socket.current.on("call:notification", async (data) => {
       console.log("call notification", data);
-      setPeerId(data.peerId);
-      setRecieverId(data.senderId);
-      setCurrentConversation(data.conversationId);
-      document.getElementById("my_modal_video").showModal();
+      if (data.status === "offline") {
+        setTimeout(() => {
+          document.getElementById("my_call_modal").close();
+        }, 2000);
+        toast("User is offline!", {
+          icon: "🔴",
+        });
+        const response = await notificationHandler(data.data);
+        return;
+      } else {
+        console.log(
+          "call notification",
+          data.peerId,
+          data.senderId,
+          data.conversationId
+        );
+        setPeerId(data.peerId);
+        setRecieverId(data.senderId);
+        setCurrentConversation(data.conversationId);
+        document.getElementById("my_modal_video").showModal();
+      }
     });
     socket.current.on("call:accept", () => {
       document.getElementById("my_modal_video").close();
@@ -54,9 +79,12 @@ function Home() {
       document.getElementById("my_modal_video_call").showModal();
       setCallAccepted(true);
     });
-    return () => {
-      socket.current.off("join:room");
-    };
+    socket.current.on("video_status", (data) => {
+      setVideoStatus(data.status);
+    });
+    socket.current.on("disconnect_call", () => {
+      setHangupCall(true);
+    });
   }, []);
 
   useEffect(() => {
@@ -96,11 +124,14 @@ function Home() {
 
   return (
     <>
+      <Toaster />
       <VideoCallModal
         peerId={peerId}
         callAccepted={callAccepted}
         recieverId={recieverId}
         current={currentConversation}
+        videoStatus={videoStatus}
+        hangupCall={hangupCall}
       />
       <div className="grid grid-cols-12">
         <div className="col-span-1">

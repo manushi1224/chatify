@@ -38,6 +38,17 @@ export default function ResponseButtons({
           </button>
         </div>
       );
+    case "notification":
+      return (
+        <div className="flex gap-3 mt-2" key={ntfn._id}>
+          <button
+            className="btn btn-sm btn-success"
+            onClick={() => handleDelete(ntfn._id)}
+          >
+            OK
+          </button>
+        </div>
+      );
     default:
       return (
         <div className="flex gap-3 mt-2" key={ntfn._id}>

@@ -93,7 +93,9 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
         {chatRoomMessages &&
           reciever &&
           chatRoomMessages.map((message, index) => {
-            const dateNum = moment(message.createdAt).format("DD-MM-yyyy");
+            const dateNum = moment(
+              message.createdAt || new Date().toLocaleDateString
+            ).format("DD-MM-yyyy");
             return (
               <div key={message._id} ref={chatRef}>
                 {!dates.has(dateNum) && renderDate(message, dateNum, dates)}
