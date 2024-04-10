@@ -13,7 +13,7 @@ import { NoNotification } from "../../ui/svgs/AllSvgs";
 function NotificationModal({
   notify,
   setNotify,
-  userId,
+  authUser,
   socket,
   senderName,
   conversations,
@@ -22,7 +22,7 @@ function NotificationModal({
 }) {
   const fetchAllConversationByUser = async (notificationId) => {
     try {
-      const { data } = await getConversationByUserId(userId);
+      const { data } = await getConversationByUserId(authUser.userId);
       fetchConversations(data.conversations);
       settingCurrentConversation(data.conversation._id);
     } catch (error) {}
@@ -31,7 +31,7 @@ function NotificationModal({
 
   const handleAccept = async (recieverId, notificationId) => {
     socket.current.emit("sendNotification", {
-      senderId: userId,
+      senderId: authUser.userId,
       recieverId: recieverId,
       text: "Your request has been accepted",
       userName: senderName,
@@ -39,15 +39,17 @@ function NotificationModal({
     });
     try {
       await sendNotification({
-        senderId: userId,
+        senderId: authUser.userId,
         recieverId: recieverId,
         text: "Your request has been accepted",
         userName: senderName,
         type: "accepted",
+        token: authUser.token,
       });
       const response = await createNewConversation({
-        senderId: userId,
+        senderId: authUser.userId,
         recieverId,
+        token: authUser.token,
       });
       fetchConversations([...conversations, response.data.conversation]);
       settingCurrentConversation(response.data.conversation._id);
@@ -61,14 +63,15 @@ function NotificationModal({
 
     try {
       const { data } = await sendNotification({
-        senderId: userId,
+        senderId: authUser.userId,
         recieverId: senderId,
         text: "Your request has been declined",
         userName: senderName,
         type: "response",
+        token: authUser.token,
       });
       socket.current.emit("sendNotification", {
-        senderId: userId,
+        senderId: authUser.userId,
         recieverId: senderId,
         userName: senderName,
         text: "Your request has been declined",
@@ -81,7 +84,7 @@ function NotificationModal({
 
   const handleDelete = async (notificationId) => {
     try {
-      const res = await deleteNotification(notificationId);
+      const res = await deleteNotification(notificationId, authUser.token);
       if (res.status === 200) {
         setNotify(notify.filter((ntf) => ntf._id !== notificationId));
       }
@@ -125,6 +128,7 @@ function NotificationModal({
                   handleDecline={handleDecline}
                   fetchAllConversationByUser={fetchAllConversationByUser}
                   handleDelete={handleDelete}
+                  authUser={authUser}
                 />
               </div>
             );

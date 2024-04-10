@@ -58,7 +58,7 @@ function Home() {
         toast("User is offline!", {
           icon: "🔴",
         });
-        const response = await notificationHandler(data.data);
+        const response = await notificationHandler(data.data, user.token);
         return;
       } else {
         console.log(

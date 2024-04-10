@@ -33,6 +33,7 @@ const editUserProfile = async (userId, formData, userContext) => {
     body: JSON.stringify(formData),
     headers: {
       "Content-Type": "application/json",
+      Authorization: "Bearer " + userContext.token,
     },
   })
     .then((res) => res.json())

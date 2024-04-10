@@ -104,7 +104,7 @@ function NavBar({
               <NotificationModal
                 notify={notify}
                 setNotify={setNotify}
-                userId={authUser.userId}
+                authUser={authUser}
                 senderName={authUser?.currentUser?.userName}
                 socket={socket}
                 conversations={conversations}

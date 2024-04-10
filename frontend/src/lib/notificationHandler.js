@@ -1,6 +1,6 @@
 import { sendNotification } from "../apis/notificationApis";
 
-const notificationHandler = async (data) => {
+const notificationHandler = async (data, token) => {
   console.log("notificationHandler", data);
   try {
     const response = await sendNotification({
@@ -9,6 +9,7 @@ const notificationHandler = async (data) => {
       text: "You have a missed call!",
       userName: data.userName,
       type: "notification",
+      token: token,
     });
     return response;
   } catch (error) {

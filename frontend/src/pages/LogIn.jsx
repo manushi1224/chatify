@@ -69,7 +69,7 @@ function LogIn() {
     }
     if (signupForm) {
       try {
-        const response = await signupUser(formData);
+        const response = await signupUser(formData, authUser.token);
         if (response.data.success) {
           toast.success(response.data.message);
           setTimeout(() => {
@@ -82,7 +82,7 @@ function LogIn() {
       }
     } else {
       try {
-        const { data } = await loginUser(formData);
+        const { data } = await loginUser(formData, authUser.token);
         if (data.success) {
           authUser.login(data.token, data.user._id, peerId);
           toast.success(data.message);

@@ -32,12 +32,20 @@ const getConversationByUser = async (userId) => {
   } catch (error) {}
 };
 
-const createNewConversation = async ({ senderId, recieverId }) => {
+const createNewConversation = async ({ senderId, recieverId, token }) => {
   try {
-    return await axios.post(`${url}/api/conversations/`, {
-      senderId,
-      recieverId,
-    });
+    return await axios.post(
+      `${url}/api/conversations/`,
+      {
+        senderId,
+        recieverId,
+      },
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
   } catch (error) {
     console.log(error);
   }

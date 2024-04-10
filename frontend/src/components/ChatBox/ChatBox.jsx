@@ -74,6 +74,7 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
       conversationId,
       sender: user.userId,
       text: newMessage,
+      token: user.token,
     });
     setChatRoomMessages([...chatRoomMessages, data.messages]);
     setNewMessage("");

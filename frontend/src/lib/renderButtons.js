@@ -5,6 +5,7 @@ export default function ResponseButtons({
   request,
   handleDelete,
   fetchAllConversationByUser,
+  authUser,
 }) {
   switch (request) {
     case "request":
@@ -43,7 +44,7 @@ export default function ResponseButtons({
         <div className="flex gap-3 mt-2" key={ntfn._id}>
           <button
             className="btn btn-sm btn-success"
-            onClick={() => handleDelete(ntfn._id)}
+            onClick={() => handleDelete(ntfn._id, authUser.token)}
           >
             OK
           </button>
@@ -54,7 +55,7 @@ export default function ResponseButtons({
         <div className="flex gap-3 mt-2" key={ntfn._id}>
           <button
             className="btn btn-sm btn-success"
-            onClick={() => handleDelete(ntfn._id)}
+            onClick={() => handleDelete(ntfn._id, authUser.token)}
           >
             OK
           </button>
