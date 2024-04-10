@@ -13,7 +13,7 @@ import {
   uploadBytes,
 } from "firebase/storage";
 import { toast } from "react-hot-toast";
-import { BackArrow, EditIcon } from "../../ui/svgs/AllSvgs";
+import { BackArrow, EditIcon } from "../../assets/svgs/AllSvgs";
 import { editUserProfile } from "../../apis/userApis";
 
 function SideBar({ closeModal }) {
@@ -36,7 +36,7 @@ function SideBar({ closeModal }) {
     const fileRef = ref(storage, user.currentUser.imageUrl);
     deleteObject(fileRef)
       .then(() => {
-        console.log("File deleted successfully");
+        
       })
       .catch((error) => {
         console.log("Error deleting file: " + error);

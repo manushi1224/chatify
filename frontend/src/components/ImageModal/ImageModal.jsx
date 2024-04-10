@@ -1,5 +1,5 @@
 import React from "react";
-import { ImageUpload } from "../../ui/svgs/AllSvgs";
+import { ImageUpload } from "../../assets/svgs/AllSvgs";
 
 function ImageModal({
   imagePreview,

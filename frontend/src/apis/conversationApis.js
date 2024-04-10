@@ -32,6 +32,16 @@ const getConversationByUser = async (userId) => {
   } catch (error) {}
 };
 
+const getAllConversationsByUser = async (userId) => {
+  try {
+    return await axios.get(
+      `${url}/api/conversations/allConversations/${userId}`
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const createNewConversation = async ({ senderId, recieverId, token }) => {
   try {
     return await axios.post(
@@ -56,4 +66,5 @@ export {
   getConversationByUserId,
   getConversationByUser,
   createNewConversation,
+  getAllConversationsByUser,
 };

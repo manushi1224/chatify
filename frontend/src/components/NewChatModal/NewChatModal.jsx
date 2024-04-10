@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import UserList from "../../ui/UserList";
-import axios from "axios";
+import { getAllConversationsByUser } from "../../apis/conversationApis";
 import userContext from "../../context/userContext";
+import UserList from "../../ui/UserList";
 
 function NewChatModal({ socket }) {
   const user = useContext(userContext);
@@ -10,9 +10,7 @@ function NewChatModal({ socket }) {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_KEY}/api/conversations/allConversations/${user?.userId}`
-        );
+        const response = await getAllConversationsByUser(user.userId);
         setNewChatUser(response.data.newUsers);
       } catch (error) {
         console.log(error);
@@ -27,7 +25,7 @@ function NewChatModal({ socket }) {
       <div className="py-4">
         <ul>
           {newChatUser.length === 0 ? (
-            <>nothing</>
+            <>No user to be shown!</>
           ) : (
             newChatUser.map((u) => {
               return (

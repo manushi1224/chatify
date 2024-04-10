@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import ImageNavbar from "../../assets/chatify.png";
 import userContext from "../../context/userContext";
 import ImageAvatar from "../../ui/ImageAvatar";
-import { BellIcon, NewChat } from "../../ui/svgs/AllSvgs";
+import { BellIcon, NewChat } from "../../assets/svgs/AllSvgs";
 import NewChatModal from "../NewChatModal/NewChatModal";
 import NotificationModal from "../NotificationModal/NotificationModal";
 import SideBar from "../SideBar/SideBar";
 import { getAllNotifications } from "../../apis/notificationApis";
+import { useSocket } from "../../context/SocketProvider";
 
 function NavBar({
   notification,
   setNotification,
-  socket,
   conversations,
   fetchConversations,
   settingCurrentConversation,
@@ -21,6 +21,7 @@ function NavBar({
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [notify, setNotify] = useState();
+  const socket = useSocket();
 
   useEffect(() => {
     if (!authUser.isLoggedIn) {
@@ -104,9 +105,6 @@ function NavBar({
               <NotificationModal
                 notify={notify}
                 setNotify={setNotify}
-                authUser={authUser}
-                senderName={authUser?.currentUser?.userName}
-                socket={socket}
                 conversations={conversations}
                 fetchConversations={fetchConversations}
                 settingCurrentConversation={settingCurrentConversation}

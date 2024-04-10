@@ -28,9 +28,6 @@ function UserList({
           type: "request",
         }
       );
-
-      console.log("Notification sent", notify.data);
-
       socket.current.emit("sendNotification", {
         senderId: senderId,
         recieverId: recieverId,

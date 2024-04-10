@@ -1,12 +1,16 @@
+import { useContext } from "react";
+import userContext from "../context/userContext";
+
 export default function ResponseButtons({
-  handleAccept,
-  handleDecline,
   ntfn,
   request,
   handleDelete,
+  handleAccept,
+  handleDecline,
   fetchAllConversationByUser,
-  authUser,
 }) {
+  const authUser = useContext(userContext);
+  
   switch (request) {
     case "request":
       return (

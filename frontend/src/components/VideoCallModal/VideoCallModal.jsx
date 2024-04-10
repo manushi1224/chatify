@@ -8,7 +8,8 @@ import {
   MicOn,
   StopVideo,
   VideoIcon,
-} from "../../ui/svgs/AllSvgs";
+} from "../../assets/svgs/AllSvgs";
+import { acceptVideoCall, handleDisconnect } from "../../lib/handleVideoCall";
 
 function VideoCallModal({
   peerId,
@@ -27,13 +28,10 @@ function VideoCallModal({
   const peerRef = useRef(null);
 
   useEffect(() => {
-    if (!videoStatus) {
-      console.log("video status", videoStatus);
+    if (!videoStatus)
       remoteVideoRef.current.srcObject.getTracks()[1].enabled = false;
-    }
-    if (remoteVideoRef.current.srcObject !== null) {
+    if (remoteVideoRef.current.srcObject !== null)
       remoteVideoRef.current.srcObject.getTracks()[1].enabled = videoStatus;
-    }
   }, [videoStatus]);
 
   useEffect(() => {
@@ -66,12 +64,7 @@ function VideoCallModal({
       document.getElementById("my_modal_video").close();
       document.getElementById("my_modal_video_call").showModal();
 
-      peerRef.current.on("error", (error) => {
-        console.log(error);
-      });
-
       peerRef.current.on("call", (call) => {
-        console.log("call", call);
         navigator.mediaDevices
           .getUserMedia({ video: true, audio: true })
           .then((stream) => {
@@ -94,74 +87,14 @@ function VideoCallModal({
           });
       });
     }
-  }, [callAccepted, user.peerId, video, audio, peerId]);
+  }, [callAccepted, user.peerId]);
 
   useEffect(() => {
-    if (hangupCall) {
-      handleDisconnect();
-    }
+    if (hangupCall) handleDisconnect(localVideoRef, remoteVideoRef);
   }, [hangupCall]);
 
-  const handleVideoCall = () => {
-    document.getElementById("my_modal_video").close();
-    document.getElementById("my_modal_video_call").showModal();
-    socket.emit("join:room", {
-      recieverId: recieverId,
-      senderId: user.userId,
-      conversationId: current,
-    });
-    socket.emit("call:accept", {
-      recieverId: recieverId,
-      senderId: user.userId,
-    });
-
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        localVideoRef.current.srcObject = stream;
-        localVideoRef.current.onloadedmetadata = () => {
-          localVideoRef.current.play();
-        };
-        const call = peerRef.current.call(peerId, stream);
-
-        call.on("stream", (remoteStream) => {
-          remoteVideoRef.current.srcObject = remoteStream;
-          remoteVideoRef.current.srcObject.onloadedmetadata = () => {
-            remoteVideoRef.current.play();
-          };
-        });
-        call.on("error", (error) => {
-          console.log(error);
-        });
-      })
-      .catch((error) => {
-        console.error("Error accessing media devices:", error);
-      });
-  };
-
-  const handleDisconnect = () => {
-    localVideoRef.current.srcObject.getTracks().forEach((track) => {
-      track.stop();
-    });
-    remoteVideoRef.current.srcObject.getTracks().forEach((track) => {
-      track.stop();
-    });
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(
-      (stream) => {
-        stream.getTracks().forEach((track) => {
-          track.stop();
-        });
-      },
-      (error) => {
-        console.error("Error accessing media devices:", error);
-      }
-    );
-    document.getElementById("my_modal_video").close();
-    document.getElementById("my_modal_video_call").close();
-  };
-
-  const hangupCallHandler = () => {
-    handleDisconnect();
+  const hangupCallHandler = (localVideoRef, remoteVideoRef) => {
+    handleDisconnect(localVideoRef, remoteVideoRef);
     socket.emit("disconnect_call", {
       recieverId: recieverId,
     });
@@ -191,7 +124,16 @@ function VideoCallModal({
             <button
               className="btn btn-success"
               onClick={() => {
-                handleVideoCall();
+                acceptVideoCall(
+                  localVideoRef,
+                  remoteVideoRef,
+                  peerRef,
+                  peerId,
+                  socket,
+                  user,
+                  current,
+                  recieverId
+                );
               }}
             >
               Accept !
@@ -210,8 +152,6 @@ function VideoCallModal({
             <video
               ref={localVideoRef}
               autoPlay
-              height={200}
-              width={100}
               muted={audio}
               className=" rounded-md h-20 absolute top-16 right-10 shadow-lg shadow-black"
             />
@@ -220,48 +160,34 @@ function VideoCallModal({
             <video
               ref={remoteVideoRef}
               autoPlay
-              height={500}
-              width={550}
               muted={audio}
               className=" rounded-lg shadow shadow-black"
             />
           </div>
           <div className="flex mt-10 gap-2 justify-center">
-            {audio ? (
-              <button
-                className="rounded-[50%] bg-secondary p-4"
-                onClick={() => setAudio(!audio)}
-              >
-                <MicOff />
-              </button>
-            ) : (
-              <button
-                className="rounded-[50%] bg-secondary-content p-4"
-                onClick={() => setAudio(!audio)}
-              >
-                <MicOn />
-              </button>
-            )}
-            {video ? (
-              <button
-                className="rounded-[50%] bg-secondary p-4"
-                onClick={() => stopVideo()}
-              >
-                <StopVideo />
-              </button>
-            ) : (
-              <button
-                className="rounded-[50%] bg-secondary-content p-4"
-                onClick={() => startVideo()}
-              >
-                <VideoIcon />
-              </button>
-            )}
+            <button
+              className={`rounded-[50%] ${
+                audio ? "bg-secondary" : "bg-secondary-content"
+              } p-4`}
+              onClick={() => setAudio(!audio)}
+            >
+              {audio ? <MicOff /> : <MicOn />}
+            </button>
+            <button
+              className={`rounded-[50%] ${
+                audio ? "bg-secondary" : "bg-secondary-content"
+              } p-4`}
+              onClick={() => {
+                video ? stopVideo() : startVideo();
+              }}
+            >
+              {video ? <StopVideo /> : <VideoIcon />}
+            </button>
             <form method="dialog">
               <button
                 className="bg-error rounded-[50%] p-4"
                 onClick={() => {
-                  hangupCallHandler();
+                  hangupCallHandler(remoteVideoRef, localVideoRef);
                 }}
               >
                 <EndCall />

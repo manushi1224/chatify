@@ -1,7 +1,7 @@
 import React from "react";
 import { useSocket } from "../../context/SocketProvider";
 import ImageAvatar from "../../ui/ImageAvatar";
-import { VideoIcon } from "../../ui/svgs/AllSvgs";
+import { VideoIcon } from "../../assets/svgs/AllSvgs";
 
 function ChatNav({ reciever, conversationId, user }) {
   const socket = useSocket();

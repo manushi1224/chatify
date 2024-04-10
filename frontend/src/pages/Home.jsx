@@ -7,7 +7,7 @@ import Conversations from "../components/Conversations/Conversations";
 import NavBar from "../components/NavBar/NavBar";
 import VideoCallModal from "../components/VideoCallModal/VideoCallModal";
 import userContext from "../context/userContext";
-import { ThreeDots } from "../ui/svgs/AllSvgs";
+import { ThreeDots } from "../assets/svgs/AllSvgs";
 import { notificationHandler } from "../lib/notificationHandler";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -28,7 +28,6 @@ function Home() {
   useEffect(() => {
     socket.current = io("ws://localhost:8900");
     socket.current.on("getMessage", (data) => {
-      console.log(socket.current.id, data.senderId, data.text, data.createdAt);
       setRecievedMessage({
         sender: data.senderId,
         text: data.text,
@@ -36,7 +35,6 @@ function Home() {
       });
     });
     socket.current.on("getNotification", (data) => {
-      console.log(data.senderId, data.text, "notification recieved!!");
       setNotification({
         sender: data.senderId,
         text: data.text,
@@ -46,7 +44,7 @@ function Home() {
       });
     });
     socket.current.on("join:room", (data) => {
-      console.log("join room", data.recieverId);
+      console.log("A user joined the room");
       setRecieverId(data.recieverId);
     });
     socket.current.on("call:notification", async (data) => {
@@ -58,15 +56,10 @@ function Home() {
         toast("User is offline!", {
           icon: "🔴",
         });
-        const response = await notificationHandler(data.data, user.token);
+        await notificationHandler(data.data, user.token);
         return;
       } else {
-        console.log(
-          "call notification",
-          data.peerId,
-          data.senderId,
-          data.conversationId
-        );
+        console.log("call notification");
         setPeerId(data.peerId);
         setRecieverId(data.senderId);
         setCurrentConversation(data.conversationId);
@@ -85,7 +78,7 @@ function Home() {
     socket.current.on("disconnect_call", () => {
       setHangupCall(true);
     });
-  }, []);
+  }, [user.token]);
 
   useEffect(() => {
     socket.current.emit("addUser", user.userId);
@@ -138,7 +131,6 @@ function Home() {
           <NavBar
             notification={notification}
             setNotification={setNotification}
-            socket={socket}
             conversations={conversations}
             fetchConversations={fetchConversations}
             settingCurrentConversation={settingCurrentConversation}

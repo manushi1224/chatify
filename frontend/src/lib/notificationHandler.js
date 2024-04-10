@@ -1,7 +1,6 @@
 import { sendNotification } from "../apis/notificationApis";
 
 const notificationHandler = async (data, token) => {
-  console.log("notificationHandler", data);
   try {
     const response = await sendNotification({
       senderId: data.senderId,

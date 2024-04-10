@@ -7,7 +7,7 @@ import { getUserById } from "../../apis/userApis";
 import userContext from "../../context/userContext";
 import renderDate from "../../lib/renderDate";
 import ChatBubble from "../../ui/ChatBubble";
-import { SendButton } from "../../ui/svgs/AllSvgs";
+import { SendButton } from "../../assets/svgs/AllSvgs";
 import ChatNav from "../ChatNav/ChatNav";
 
 function ChatBox({ messages, conversationId, socket, recievedMessage }) {
