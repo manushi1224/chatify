@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AuthDto } from 'dto';
-import { User } from 'schemas/user.schema';
-import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
+import { AuthDto } from 'dto';
+import { UserService } from 'src/user/user.service';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -13,7 +12,7 @@ export class AuthService {
   ) {}
   async signIn(authDto: AuthDto): Promise<{ access_token: string }> {
     try {
-      const user = await this.userService.getUserByEmail(authDto.email);
+      const user: any = await this.userService.getUserByEmail(authDto.email);
       if (!user) throw new NotFoundException('User not found');
 
       const isPasswordMatch = await bcrypt.compare(
@@ -22,7 +21,7 @@ export class AuthService {
       );
       if (!isPasswordMatch) throw new NotFoundException('Invalid password');
 
-      const payload = { sub: user.userName };
+      const payload = { name: user.userName, userId: user._id };
       const token = await this.jwtService.signAsync(payload);
 
       return {
