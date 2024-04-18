@@ -83,6 +83,7 @@ function LogIn() {
     } else {
       try {
         const { data } = await loginUser(formData, authUser.token);
+        console.log(data);
         if (data.success) {
           authUser.login(data.token, data.user._id, peerId);
           toast.success(data.message);

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { sendNotification } from "../apis/notificationApis";
+import userContext from "../context/userContext";
 import ImageAvatar from "./ImageAvatar";
-import axios from "axios";
 import Loader from "./Loader";
 
 function UserList({
@@ -15,19 +16,18 @@ function UserList({
   senderName,
 }) {
   const [isLoading, setLoading] = useState(false);
+  const user = useContext(userContext);
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const notify = await axios.post(
-        `${process.env.REACT_APP_API_KEY}/api/notifications`,
-        {
-          senderId,
-          recieverId,
-          text: "You have a new message!",
-          userName: senderName,
-          type: "request",
-        }
-      );
+      const notify = await sendNotification({
+        senderId,
+        recieverId,
+        text: "You have a new message!",
+        userName: senderName,
+        type: "request",
+        token: user.token,
+      });
       socket.current.emit("sendNotification", {
         senderId: senderId,
         recieverId: recieverId,
