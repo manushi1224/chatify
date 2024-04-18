@@ -8,7 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthDto } from 'dto';
+import { AuthDto } from '../../dto';
 import { AuthGaurd, Public } from './auth.guard';
 import { AuthService } from './auth.service';
 

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Res } from '@nestjs/common';
-import { Message } from 'schemas/message.schema';
-import { Public } from 'src/auth/auth.guard';
+import { Message } from '../../schemas/message.schema';
+import { Public } from '../auth/auth.guard';
 import { MessageService } from './message.service';
 
 @Controller('message')

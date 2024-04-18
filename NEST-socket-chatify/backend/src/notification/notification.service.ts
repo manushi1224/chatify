@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Notification } from 'schemas/notification.schema';
+import mongoose, { Model } from 'mongoose';
+import { Notification } from '../../schemas/notification.schema';
 
 @Injectable()
 export class NotificationService {
@@ -10,19 +10,20 @@ export class NotificationService {
   ) {}
 
   async getNotification(recieverId: string): Promise<Notification[]> {
-    try {
-      const notification = await this.notificationModel.find({ recieverId });
-      return notification;
-    } catch (error) {
-      return error;
+    const validId = mongoose.isValidObjectId(recieverId);
+    if (!validId) {
+      throw new NotFoundException('Invalid recieverId');
     }
+    const notification = await this.notificationModel.find({ recieverId });
+    if (!notification) {
+      throw new NotFoundException('No notification found');
+    }
+    return notification;
   }
 
   async createNotification(notification: any): Promise<Notification> {
     try {
-      const newNotification = await new this.notificationModel(
-        notification,
-      ).save();
+      const newNotification = await this.notificationModel.create(notification);
       return newNotification;
     } catch (error) {
       return error;

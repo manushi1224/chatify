@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
-import { ConversationDto } from 'dto/conversation.dto';
+import { ConversationDto } from '../../dto';
 import { ConversationService } from './conversation.service';
-import { Conversation } from 'schemas/conversation.schema';
-import { Public } from 'src/auth/auth.guard';
+import { Conversation } from '../../schemas/conversation.schema';
+import { Public } from '../auth/auth.guard';
 
 @Controller('conversation')
 export class ConversationController {

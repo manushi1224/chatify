@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Message } from 'schemas/message.schema';
+import { Message } from '../../schemas/message.schema';
 
 @Injectable()
 export class MessageService {
@@ -9,7 +9,7 @@ export class MessageService {
 
   async createMessage(data: any): Promise<Message> {
     try {
-      const newMessage = await new this.messageModel(data).save();
+      const newMessage = await this.messageModel.create(data);
       return newMessage;
     } catch (error) {
       return error;

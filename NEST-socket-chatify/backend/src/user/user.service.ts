@@ -1,33 +1,31 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserDto } from 'dto/user.dto';
 import { Model } from 'mongoose';
-import { User } from 'schemas/user.schema';
+import { UserDto } from '../../dto';
+import { User } from '../../schemas/user.schema';
 const bcrypt = require('bcrypt');
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
+  }
+
   async createNewUser(user: UserDto): Promise<any> {
-    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const hashedPassword = await this.hashPassword(user.password);
     if (!hashedPassword) {
-      return new Error('Failed to hash password');
+      return new BadRequestException('Failed to hash password');
     }
 
-    const newUser = new this.userModel({
-      userName: user.userName,
-      email: user.email,
-      password: hashedPassword,
-      imageUrl: user.imageUrl,
-    });
-
     try {
-      await newUser.save();
+      const newUser = await this.userModel.create({
+        userName: user.userName,
+        email: user.email,
+        password: hashedPassword,
+        imageUrl: user.imageUrl,
+      });
       return newUser;
     } catch (error) {
       throw error;

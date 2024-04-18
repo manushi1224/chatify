@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConversationDto } from 'dto/conversation.dto';
-import { Model } from 'mongoose';
-import { Conversation } from 'schemas/conversation.schema';
-import { User } from 'schemas/user.schema';
+import mongoose, { Model } from 'mongoose';
+import { Conversation } from '../../schemas/conversation.schema';
+import { User } from '../../schemas/user.schema';
 
 @Injectable()
 export class ConversationService {
@@ -16,9 +16,9 @@ export class ConversationService {
 
   async createConversation(convo: ConversationDto): Promise<Conversation> {
     try {
-      const newConvo = await new this.conversationModel({
+      const newConvo = await this.conversationModel.create({
         members: [convo.senderId, convo.recieverId],
-      }).save();
+      });
       return newConvo;
     } catch (error) {
       return error;
@@ -26,8 +26,12 @@ export class ConversationService {
   }
 
   async getAllConversations(userId: string): Promise<Conversation[]> {
+    const isValidObjectId = mongoose.isValidObjectId(userId);
+    if (!isValidObjectId) {
+      throw new NotFoundException('Invalid userId');
+    }
+
     try {
-      console.log(userId);
       const allConvo = await this.conversationModel.find({
         members: { $in: [userId] },
       });
@@ -46,7 +50,11 @@ export class ConversationService {
     }
   }
 
-  async getConversationByMembers(userId: string): Promise<any> {
+  async getConversationByMembers(userId: string): Promise<Conversation | any> {
+    const isValidObjectId = mongoose.isValidObjectId(userId);
+    if (!isValidObjectId) {
+      throw new NotFoundException('Invalid userId');
+    }
     try {
       const conversations = await this.conversationModel.find();
       let pastUsers = [];

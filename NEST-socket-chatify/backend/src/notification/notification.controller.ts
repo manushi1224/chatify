@@ -8,8 +8,8 @@ import {
   Res,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-import { Public } from 'src/auth/auth.guard';
-import { NotificationDto } from 'dto/notification.dto';
+import { Public } from '../auth/auth.guard';
+import { NotificationDto } from '../../dto';
 
 @Controller('notification')
 export class NotificationController {
@@ -29,7 +29,7 @@ export class NotificationController {
     }
   }
 
-  @Public()
+  // @Public()
   @Post('createNotification')
   async createNotification(
     @Body() notification: NotificationDto,
