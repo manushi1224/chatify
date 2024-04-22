@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { Message } from '../../schemas/message.schema';
 import { Public } from '../auth/auth.guard';
 import { MessageService } from './message.service';
@@ -22,10 +22,13 @@ export class MessageController {
   }
 
   @Public()
-  @Get('getMessages')
-  async getMessages(@Res() res: any): Promise<Message[]> {
+  @Get('getMessages/:conversationId')
+  async getMessages(
+    @Res() res: any,
+    @Param() conversationId: string,
+  ): Promise<Message[]> {
     try {
-      const message = await this.messageService.getMessages();
+      const message = await this.messageService.getMessages(conversationId);
       return res.status(200).json(message);
     } catch (error) {
       return res.status(error.status).json(error.message);

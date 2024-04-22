@@ -37,7 +37,7 @@ export class ConversationService {
       });
       return allConvo;
     } catch (error) {
-      return error;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -46,7 +46,7 @@ export class ConversationService {
       const conversation = await this.conversationModel.findById(convoId);
       return conversation;
     } catch (error) {
-      return error;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -80,7 +80,7 @@ export class ConversationService {
 
       return { pastUsers, newUsers };
     } catch (error) {
-      return error;
+      throw new NotFoundException(error.message);
     }
   }
 }
