@@ -1,10 +1,23 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UserSchema } from '../schemas/user.schema';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { ConversationModule } from './conversation/conversation.module';
+import { MessageModule } from './message/message.module';
+import { NotificationModule } from './notification/notification.module';
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    MongooseModule.forRoot(process.env.MONGODB_URL),
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+    AuthModule,
+    UserModule,
+    ConversationModule,
+    MessageModule,
+    NotificationModule,
+  ],
+  controllers: [],
 })
 export class AppModule {}
