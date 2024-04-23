@@ -20,6 +20,8 @@ describe('NotificationController', () => {
   let mockService = {
     create: jest.fn(),
     getNotifications: jest.fn().mockResolvedValueOnce([mockNotification]),
+    createNotification: jest.fn().mockResolvedValueOnce(mockNotification),
+    deleteNotification: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -28,7 +30,7 @@ describe('NotificationController', () => {
       providers: [
         NotificationService,
         {
-          provide: getModelToken(Notification.name),
+          provide: NotificationService,
           useValue: mockService,
         },
       ],
@@ -78,6 +80,9 @@ describe('NotificationController', () => {
         mockRes,
       );
 
+      expect(notificationService.createNotification).toHaveBeenCalledWith(
+        newNotification,
+      );
       expect(result).toEqual(mockNotification);
     });
   });
@@ -94,6 +99,7 @@ describe('NotificationController', () => {
         },
       );
 
+      expect(notificationService.deleteNotification).toHaveBeenCalled();
       expect(result).toEqual({
         message: 'Notification deleted successfully',
       });

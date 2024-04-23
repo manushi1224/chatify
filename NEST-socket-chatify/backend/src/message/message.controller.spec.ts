@@ -30,7 +30,7 @@ describe('MessageController', () => {
       providers: [
         MessageService,
         {
-          provide: getModelToken(Message.name),
+          provide: MessageService,
           useValue: mockService,
         },
       ],
@@ -58,6 +58,7 @@ describe('MessageController', () => {
         message: 'Hello',
       };
       const result = await messageController.createMessage(newMessage, mockRes);
+      expect(messageService.createMessage).toHaveBeenCalledWith(newMessage);
       expect(result).toEqual(mockMessage);
     });
   });
@@ -72,6 +73,8 @@ describe('MessageController', () => {
         },
         conversationId,
       );
+
+      expect(messageService.getMessages).toHaveBeenCalledWith(conversationId);
       expect(result).toEqual([mockMessage]);
     });
   });

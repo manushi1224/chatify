@@ -15,7 +15,9 @@ export class MessageController {
   ): Promise<Message> {
     try {
       const newMessage = await this.messageService.createMessage(data);
-      return res.status(200).json(newMessage);
+      return res
+        .status(201)
+        .json({ message: 'Message Created Successfully!', newMessage });
     } catch (error) {
       return res.status(error.status).json(error.message);
     }
@@ -25,7 +27,7 @@ export class MessageController {
   @Get('getMessages/:conversationId')
   async getMessages(
     @Res() res: any,
-    @Param() conversationId: string,
+    @Param() { conversationId }: any,
   ): Promise<Message[]> {
     try {
       const message = await this.messageService.getMessages(conversationId);

@@ -3,6 +3,8 @@
 /node_modules
 /build
 
+/.dockerignore
+
 # Logs
 logs
 *.log
@@ -39,6 +41,7 @@ lerna-debug.log*
 .env
 .env.development.local
 .env.test.local
+.env.test
 .env.production.local
 .env.local
 

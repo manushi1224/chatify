@@ -29,7 +29,6 @@ class AuthController {
   }
 
   @HttpCode(200)
-  @UseGuards(AuthGaurd)
   @Get('profile')
   async getProfile(@Res() res: any, @Request() req: any): Promise<any> {
     return res.status(200).json({ message: 'Profile', user: req.user });

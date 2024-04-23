@@ -18,8 +18,9 @@ export class MessageService {
 
   async getMessages(conversationId: string): Promise<Message[]> {
     try {
+      console.log(conversationId, 'conversationId');
       const allMessages = await this.messageModel.find({
-        conversationId: conversationId,
+        conversationId,
       });
       return allMessages;
     } catch (error) {

@@ -38,7 +38,10 @@ export class NotificationController {
     try {
       const newNotification =
         await this.notificationService.createNotification(notification);
-      return res.status(200).json(newNotification);
+      return res.status(201).json({
+        newNotification,
+        message: 'Notification Created Successfully!',
+      });
     } catch (error) {
       return res.status(error.status).json({ message: error.message });
     }
@@ -54,7 +57,7 @@ export class NotificationController {
       await this.notificationService.deleteNotification(id);
       return res
         .status(200)
-        .json({ message: 'Notification deleted successfully' });
+        .json({ message: 'Notification Deleted Successfully!' });
     } catch (error) {
       return res.status(error.status).json({ message: error.message });
     }
