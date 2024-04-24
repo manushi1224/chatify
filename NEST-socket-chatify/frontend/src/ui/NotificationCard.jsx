@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
-import userContext from "../context/userContext";
-import { useSocket } from "../context/SocketProvider";
-import ResponseButtons from "../lib/renderButtons";
 import {
   createNewConversation,
-  getConversationByUserId,
+  getConversationByUser,
 } from "../apis/conversationApis";
 import { sendNotification } from "../apis/notificationApis";
+import { useSocket } from "../context/SocketProvider";
+import userContext from "../context/userContext";
+import ResponseButtons from "../lib/renderButtons";
 
 function NotificationCard({
   ntfn,
@@ -20,7 +20,10 @@ function NotificationCard({
 
   const fetchAllConversationByUser = async (notificationId) => {
     try {
-      const { data } = await getConversationByUserId(authUser.userId);
+      const { data } = await getConversationByUser(
+        authUser.userId,
+        authUser.token
+      );
       fetchConversations(data.conversations);
       settingCurrentConversation(data.conversation._id);
     } catch (error) {}
@@ -80,10 +83,7 @@ function NotificationCard({
     handleDelete(notificationId);
   };
   return (
-    <div
-      key={ntfn._id}
-      className="bg-primary-content rounded-md p-2 flex w-full justify-around mb-2"
-    >
+    <div className="bg-primary-content rounded-md p-2 flex w-full justify-around mb-2">
       <div>
         <span>{ntfn?.text}</span>
         <h3 className="font-bold text-lg">

@@ -26,7 +26,9 @@ export class AuthService {
     });
   }
 
-  async signIn(authDto: AuthDto): Promise<{ access_token: string }> {
+  async signIn(
+    authDto: AuthDto,
+  ): Promise<{ access_token: string; userId: string }> {
     try {
       const user: any = await this.userService.getUserByEmail(authDto.email);
       if (!user) throw new NotFoundException('User not found');
@@ -42,7 +44,19 @@ export class AuthService {
 
       return {
         access_token: token,
+        userId: user._id,
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getProfile(userId: string): Promise<any> {
+    try {
+      const user = await this.userService.getUserById(userId);
+      if (!user) throw new NotFoundException('User not found');
+
+      return user;
     } catch (error) {
       throw error;
     }

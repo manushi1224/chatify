@@ -44,8 +44,12 @@ function App() {
 
   const getUserData = async () => {
     if (token) {
-      const { user } = await getUserById(userId);
-      setCurrentUser(user);
+      try {
+        const { user } = await getUserById(token, userId);
+        setCurrentUser(user);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 

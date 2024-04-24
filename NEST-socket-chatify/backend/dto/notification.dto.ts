@@ -17,7 +17,11 @@ export class NotificationDto {
   @IsNotEmpty()
   type: string;
 
-  @IsDateString()
+  @IsString()
   @IsNotEmpty()
+  userName: string;
+
+  // @IsDateString()
+  // @IsNotEmpty()
   createdAt: string;
 }

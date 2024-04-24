@@ -12,30 +12,31 @@ const getConversationById = async (conversationId) => {
   }
 };
 
-const getConversationByUserId = async (userId) => {
+const getConversationByUser = async (userId, token) => {
   try {
-    const response = await axios.get(
-      `${url}/api/conversations/conversation/user/${userId}`
+    return await axios.get(
+      `${url}/conversation/getAllConversationsByUserId/${userId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
     );
-    console.log("response", response.data.conversationId);
-    return response;
   } catch (error) {
-    console.log("error", error);
+    console.log(error);
+    throw error;
   }
 };
 
-const getConversationByUser = async (userId) => {
+const getAllConversationByMembers = async (userId, token) => {
   try {
     return await axios.get(
-      `${url}/api/conversations/conversationByUser/${userId}`
-    );
-  } catch (error) {}
-};
-
-const getAllConversationsByUser = async (userId) => {
-  try {
-    return await axios.get(
-      `${url}/api/conversations/allConversations/${userId}`
+      `${url}/conversation/getConversationByMembers/${userId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
     );
   } catch (error) {
     console.log(error);
@@ -63,8 +64,7 @@ const createNewConversation = async ({ senderId, recieverId, token }) => {
 
 export {
   getConversationById,
-  getConversationByUserId,
   getConversationByUser,
   createNewConversation,
-  getAllConversationsByUser,
+  getAllConversationByMembers,
 };

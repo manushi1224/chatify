@@ -43,6 +43,7 @@ export class NotificationController {
         message: 'Notification Created Successfully!',
       });
     } catch (error) {
+      console.log(error);
       return res.status(error.status).json({ message: error.message });
     }
   }

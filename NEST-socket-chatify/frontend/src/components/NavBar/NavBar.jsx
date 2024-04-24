@@ -20,7 +20,7 @@ function NavBar({
   const authUser = useContext(userContext);
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
-  const [notify, setNotify] = useState();
+  const [notify, setNotify] = useState([]);
   const socket = useSocket();
 
   useEffect(() => {
@@ -38,15 +38,21 @@ function NavBar({
     if (!authUser.userId) return;
     try {
       const fetchAllNotifications = async () => {
-        const { data } = await getAllNotifications(authUser.userId);
-        setNotify(data.notifications);
+        const { data } = await getAllNotifications(
+          authUser.userId,
+          authUser.token
+        );
+        setNotify(data);
       };
       fetchAllNotifications();
-    } catch (error) {}
-  }, [notification, authUser.userId]);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [notification, authUser.userId, authUser.token]);
 
   useEffect(() => {
-    notification && setNotify((prev) => [...prev, notification]);
+    notification && notify && setNotify((prev) => [...prev, notification]);
+    // eslint-disable-next-line
   }, [notification, setNotify]);
 
   const handleNotifications = () => {

@@ -37,7 +37,7 @@ function LogIn() {
   useEffect(() => {
     if (formData.imageUrl) {
       setLoading(false);
-      document.getElementById("my_modal_1").close();
+      document.getElementById("image_upload_modal").close();
     }
   }, [formData.imageUrl]);
 
@@ -46,7 +46,8 @@ function LogIn() {
       toast.error("Please select an image");
       return;
     }
-    const imageRef = storageRef(storage, `images/${imageUpload + uuid()}`);
+    console.log(imageUpload);
+    const imageRef = storageRef(storage, `images/${imageUpload.name + uuid()}`);
 
     uploadBytes(imageRef, imageUpload)
       .then((snapshot) => {
@@ -82,15 +83,25 @@ function LogIn() {
       }
     } else {
       try {
-        const { data } = await loginUser(formData, authUser.token);
-        if (data.success) {
-          authUser.login(data.token, data.user._id, peerId);
-          toast.success(data.message);
+        const response = await loginUser(formData, authUser.token);
+        if (response.status === 200) {
+          authUser.login(
+            response.data.access_token,
+            response.data.userId,
+            peerId
+          );
+          toast.success("Logged In Successfully!");
           navigate("/chat");
           return;
         }
       } catch (error) {
-        toast.error("Invalid Credentials!");
+        if (error.response.status === 401) {
+          toast.error("Please check your password!");
+        } else if (error.response.status === 404) {
+          toast.error("Accoount doesn't exist! Please sign up!");
+        } else {
+          toast.error("Something went wrong!");
+        }
       }
     }
   };

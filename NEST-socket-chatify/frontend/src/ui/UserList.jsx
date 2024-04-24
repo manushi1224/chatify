@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { sendNotification } from "../apis/notificationApis";
 import ImageAvatar from "./ImageAvatar";
-import axios from "axios";
 import Loader from "./Loader";
+import userContext from "../context/userContext";
+import { useSocket } from "../context/SocketProvider";
 
 function UserList({
   userName,
@@ -9,26 +11,29 @@ function UserList({
   conversations,
   newChat,
   imageUrl,
-  socket,
   senderId,
   recieverId,
   senderName,
 }) {
   const [isLoading, setLoading] = useState(false);
+  const user = useContext(userContext);
+  const socket = useSocket();
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const notify = await axios.post(
-        `${process.env.REACT_APP_API_KEY}/api/notifications`,
-        {
-          senderId,
-          recieverId,
-          text: "You have a new message!",
-          userName: senderName,
-          type: "request",
-        }
-      );
-      socket.current.emit("sendNotification", {
+      const notify = await sendNotification({
+        senderId,
+        recieverId,
+        text: "You have a new message!",
+        userName: senderName,
+        type: "request",
+        token: user.token,
+      });
+
+      console.log(socket);
+
+      socket.emit("sendNotification", {
         senderId: senderId,
         recieverId: recieverId,
         text: "You have a new message!",

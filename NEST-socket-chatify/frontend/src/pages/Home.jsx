@@ -93,23 +93,27 @@ function Home() {
   };
 
   useEffect(() => {
+    if (!user.token) return;
     const fetchUsers = async () => {
       try {
-        const { data } = await getConversationByUser(user.userId);
-        fetchConversations(data.conversations);
+        const response = await getConversationByUser(user.userId, user.token);
+        fetchConversations(response.data.conversations);
       } catch (error) {
         console.log(error);
       }
     };
     fetchUsers();
-  }, [user.userId, notification]);
+  }, [user.userId, notification, user.token]);
 
   useEffect(() => {
+    if (!currentConversation) return;
     const fetchMessages = async () => {
       try {
         const { data } = await getAllMessages(currentConversation);
         setMessages(data.messages);
-      } catch (error) {}
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     fetchMessages();
@@ -155,7 +159,7 @@ function Home() {
               </div>
             </div>
             <div className="mt-2 h-full bg-primary-content p-2 rounded-xl">
-              {conversations.length !== 0 ? (
+              {conversations && conversations.length !== 0 ? (
                 conversations.map((con) => {
                   return (
                     <li

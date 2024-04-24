@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { Message } from '../../schemas/message.schema';
 import { Public } from '../auth/auth.guard';
 import { MessageService } from './message.service';
+import { MessageDto } from 'dto/message.dto';
 
 @Controller('message')
 export class MessageController {
@@ -12,7 +13,7 @@ export class MessageController {
   async createMessage(
     @Body() data: Message,
     @Res() res: any,
-  ): Promise<Message> {
+  ): Promise<MessageDto> {
     try {
       const newMessage = await this.messageService.createMessage(data);
       return res
@@ -28,7 +29,7 @@ export class MessageController {
   async getMessages(
     @Res() res: any,
     @Param() { conversationId }: any,
-  ): Promise<Message[]> {
+  ): Promise<MessageDto[]> {
     try {
       const message = await this.messageService.getMessages(conversationId);
       return res.status(200).json(message);

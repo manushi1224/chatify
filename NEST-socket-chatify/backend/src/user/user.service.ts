@@ -40,4 +40,13 @@ export class UserService {
       return error;
     }
   }
+
+  async getUserById(userId: string): Promise<User> {
+    try {
+      const user = await this.userModel.findById(userId);
+      return user;
+    } catch (error) {
+      return error;
+    }
+  }
 }
