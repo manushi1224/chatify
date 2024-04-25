@@ -11,7 +11,7 @@ export class MessageController {
   @Public()
   @Post('createMessage')
   async createMessage(
-    @Body() data: Message,
+    @Body() data: MessageDto,
     @Res() res: any,
   ): Promise<MessageDto> {
     try {

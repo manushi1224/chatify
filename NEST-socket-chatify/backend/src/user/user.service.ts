@@ -1,13 +1,21 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserDto } from '../../dto';
 import { User } from '../../schemas/user.schema';
+import { JwtService } from '@nestjs/jwt';
 const bcrypt = require('bcrypt');
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
+  constructor(
+    @InjectModel('User') private readonly userModel: Model<User>,
+    private jwtService: JwtService,
+  ) {}
 
   async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
@@ -26,7 +34,9 @@ export class UserService {
         password: hashedPassword,
         imageUrl: user.imageUrl,
       });
-      return newUser;
+      const payload = { name: user.userName, userId: newUser._id };
+      const token = await this.jwtService.signAsync(payload);
+      return { newUser, token };
     } catch (error) {
       throw error;
     }
@@ -47,6 +57,19 @@ export class UserService {
       return user;
     } catch (error) {
       return error;
+    }
+  }
+
+  async updateUserProfile(user: any, uid: string): Promise<User> {
+    const { userName, imageUrl } = user;
+    try {
+      const user = await this.userModel.findById(uid);
+      user.userName = userName || user.userName;
+      user.imageUrl = imageUrl || user.imageUrl;
+      await user.save();
+      return user;
+    } catch (error) {
+      throw new NotFoundException('User not found');
     }
   }
 }

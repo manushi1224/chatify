@@ -71,9 +71,14 @@ function LogIn() {
     if (signupForm) {
       try {
         const response = await signupUser(formData, authUser.token);
-        if (response.data.success) {
+        if (response.status === 201) {
           toast.success(response.data.message);
           setTimeout(() => {
+            authUser.login(
+              response.data.token,
+              response.data.newUser._id,
+              peerId
+            );
             setSignupForm(false);
           }, 2000);
           return;

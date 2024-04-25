@@ -33,13 +33,18 @@ const sendNotification = async ({
 
 const deleteNotification = async (notificationId, token) => {
   try {
-    return await axios.delete(`${url}/api/notifications/${notificationId}`, {
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    });
+    console.log(notificationId, token);
+    return await axios.delete(
+      `${url}/notification/deleteNotification/${notificationId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 

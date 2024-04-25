@@ -11,7 +11,6 @@ import ResponseButtons from "../lib/renderButtons";
 function NotificationCard({
   ntfn,
   handleDelete,
-  conversations,
   fetchConversations,
   settingCurrentConversation,
 }) {
@@ -24,14 +23,14 @@ function NotificationCard({
         authUser.userId,
         authUser.token
       );
-      fetchConversations(data.conversations);
-      settingCurrentConversation(data.conversation._id);
+      fetchConversations(data.allConversation);
+      settingCurrentConversation(data.allConversation._id);
     } catch (error) {}
     handleDelete(notificationId);
   };
 
   const handleAccept = async (recieverId, notificationId) => {
-    socket.current.emit("sendNotification", {
+    socket.emit("sendNotification", {
       senderId: authUser.userId,
       recieverId: recieverId,
       text: "Your request has been accepted",
@@ -52,10 +51,12 @@ function NotificationCard({
         recieverId,
         token: authUser.token,
       });
-      fetchConversations([...conversations, response.data.conversation]);
-      settingCurrentConversation(response.data.conversation._id);
+      fetchConversations((prev) => [...prev, response.data.createConversation]);
+      settingCurrentConversation(response.data.createConversation._id);
       handleDelete(notificationId);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleDecline = async (notificationId, senderId) => {

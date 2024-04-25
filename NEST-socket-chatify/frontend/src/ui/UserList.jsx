@@ -22,7 +22,7 @@ function UserList({
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const notify = await sendNotification({
+      const { data } = await sendNotification({
         senderId,
         recieverId,
         text: "You have a new message!",
@@ -31,15 +31,13 @@ function UserList({
         token: user.token,
       });
 
-      console.log(socket);
-
       socket.emit("sendNotification", {
         senderId: senderId,
         recieverId: recieverId,
         text: "You have a new message!",
         userName: senderName,
         type: "request",
-        notificationId: notify.data.notification._id,
+        notificationId: data.newNotification._id,
       });
 
       setTimeout(() => {

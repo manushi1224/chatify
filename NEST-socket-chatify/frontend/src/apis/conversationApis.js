@@ -2,13 +2,19 @@ import axios from "axios";
 
 let url = process.env.REACT_APP_API_KEY;
 
-const getConversationById = async (conversationId) => {
+const getConversationById = async (conversationId, token) => {
   try {
-    return await axios.get(
-      `${url}/api/conversations/conversation/${conversationId}`
+    const res = await axios.get(
+      `${url}/conversation/getConversationByConvoId/${conversationId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
     );
+    return res;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 };
 
@@ -46,7 +52,7 @@ const getAllConversationByMembers = async (userId, token) => {
 const createNewConversation = async ({ senderId, recieverId, token }) => {
   try {
     return await axios.post(
-      `${url}/api/conversations/`,
+      `${url}/conversation/createConversation`,
       {
         senderId,
         recieverId,
@@ -59,6 +65,7 @@ const createNewConversation = async ({ senderId, recieverId, token }) => {
     );
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 

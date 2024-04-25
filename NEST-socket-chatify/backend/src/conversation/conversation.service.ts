@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConversationDto } from 'dto/conversation.dto';
 import mongoose, { Model } from 'mongoose';
@@ -16,6 +20,13 @@ export class ConversationService {
 
   async createConversation(convo: ConversationDto): Promise<Conversation> {
     try {
+      const existingConvo = await this.conversationModel.findOne({
+        members: { $all: [convo.senderId, convo.recieverId] },
+      });
+      if (existingConvo) {
+        throw new ConflictException('Conversation already exists');
+      }
+
       const newConvo = await this.conversationModel.create({
         members: [convo.senderId, convo.recieverId],
       });

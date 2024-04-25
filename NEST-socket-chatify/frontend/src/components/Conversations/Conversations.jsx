@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { getUserById } from "../../apis/userApis";
 import ImageAvatar from "../../ui/ImageAvatar";
+import userContext from "../../context/userContext";
 
 function Conversations({ notification, conversations, userId, current }) {
   const [conversationUser, setConversationUser] = useState([]);
+  const user = useContext(userContext);
 
   useEffect(() => {
     const getUser = async (friends) => {
       try {
-        const { user } = await getUserById(friends);
-        setConversationUser(user);
+        const { data } = await getUserById(user.token, friends);
+        setConversationUser(data.user);
       } catch (error) {}
     };
     const friends = conversations.members.find((member) => member !== userId);
     getUser(friends);
-  }, [conversations, userId, notification]);
+  }, [conversations, userId, notification, user.token]);
 
   return (
     <span
