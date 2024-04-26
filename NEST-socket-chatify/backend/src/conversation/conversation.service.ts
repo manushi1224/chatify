@@ -19,21 +19,17 @@ export class ConversationService {
   ) {}
 
   async createConversation(convo: ConversationDto): Promise<Conversation> {
-    try {
-      const existingConvo = await this.conversationModel.findOne({
-        members: { $all: [convo.senderId, convo.recieverId] },
-      });
-      if (existingConvo) {
-        throw new ConflictException('Conversation already exists');
-      }
-
-      const newConvo = await this.conversationModel.create({
-        members: [convo.senderId, convo.recieverId],
-      });
-      return newConvo;
-    } catch (error) {
-      return error;
+    const existingConvo = await this.conversationModel.findOne({
+      members: { $all: [convo.senderId, convo.recieverId] },
+    });
+    if (existingConvo) {
+      throw new ConflictException('Conversation already exists');
     }
+
+    const newConvo = await this.conversationModel.create({
+      members: [convo.senderId, convo.recieverId],
+    });
+    return newConvo;
   }
 
   async getAllConversations(userId: string): Promise<Conversation[]> {

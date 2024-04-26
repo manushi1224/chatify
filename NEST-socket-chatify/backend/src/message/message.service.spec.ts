@@ -45,6 +45,7 @@ describe('MessageService', () => {
         _id: '5f4e5f0f4a7f3b1d8c9f3d5e',
         senderId: '5f4e5f0f4a7f3b1d8c9f3d5e',
         recieverId: '5f4e5f0f4a7f3b1d8c9f3d5e',
+        conversationId: '5f4e5f0f4a7f3b1d8c9f3d5e',
         message: 'Hello',
         createdAt: '2020-09-01T15:00:00.000Z',
       };

@@ -21,6 +21,11 @@ export class UserService {
     return await bcrypt.hash(password, 10);
   }
 
+  async createToken(user: any): Promise<string> {
+    const payload = { name: user.userName, userId: user._id };
+    return await this.jwtService.signAsync(payload);
+  }
+
   async createNewUser(user: UserDto): Promise<any> {
     const hashedPassword = await this.hashPassword(user.password);
     if (!hashedPassword) {
@@ -34,8 +39,7 @@ export class UserService {
         password: hashedPassword,
         imageUrl: user.imageUrl,
       });
-      const payload = { name: user.userName, userId: newUser._id };
-      const token = await this.jwtService.signAsync(payload);
+      const token = await this.createToken(newUser);
       return { newUser, token };
     } catch (error) {
       throw error;

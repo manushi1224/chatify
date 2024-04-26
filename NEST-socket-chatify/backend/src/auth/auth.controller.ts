@@ -36,7 +36,7 @@ class AuthController {
       const user = await this.authService.getProfile(userId);
       return res.status(200).json({ message: 'Profile', user });
     } catch (error) {
-      throw res.status(error.status).json({ error: error.message });
+      return res.status(error.status).json({ error: error.message });
     }
   }
 }

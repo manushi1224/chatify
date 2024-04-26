@@ -70,6 +70,7 @@ describe('NotificationController', () => {
       const newNotification = {
         senderId: '6620e7b9abe14b074b67e676',
         recieverId: '6620e7c89366f3880ac69339',
+        userName: 'test',
         text: 'Hello',
         type: 'message',
         createdAt: '2020-09-01T15:00:00.000Z',

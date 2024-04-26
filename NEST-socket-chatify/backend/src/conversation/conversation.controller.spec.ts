@@ -4,6 +4,7 @@ import { User } from '../../schemas/user.schema';
 import { UserService } from '../user/user.service';
 import { ConversationController } from './conversation.controller';
 import { ConversationService } from './conversation.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('ConversationController', () => {
   let conversationController: ConversationController;
@@ -42,6 +43,7 @@ describe('ConversationController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ConversationController],
       providers: [
+        JwtService,
         ConversationService,
         UserService,
         {

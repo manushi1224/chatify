@@ -66,7 +66,7 @@ describe('AuthService', () => {
         .mockReturnValue(Promise.resolve(token));
 
       const result = await service.signIn(signInDto);
-      expect(result).toEqual({ access_token: token });
+      expect(result).toEqual({ access_token: token, userId: mockAuth._id });
       jestValid.mockRestore();
     });
 

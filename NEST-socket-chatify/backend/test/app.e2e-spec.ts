@@ -45,6 +45,7 @@ describe('AppController (e2e)', () => {
   };
 
   let token: string = '';
+  let userCreated: any;
   let notificationCreated: any;
   let newConversation: any;
   let newMessage: any;
@@ -55,6 +56,7 @@ describe('AppController (e2e)', () => {
         .post('/user/signUp')
         .send(user)
         .expect(201);
+      userCreated = response.body.newUser;
       expect(response.body.message).toEqual('User Created Successfully!');
     });
   });
@@ -73,12 +75,39 @@ describe('AppController (e2e)', () => {
   });
 
   describe('Get profile of a user', () => {
-    it('(GET) - /auth/profile', async () => {
+    it(`(GET) - /auth/profile/`, async () => {
       await request(app.getHttpServer())
-        .get('/auth/profile')
+        .get(`/auth/profile/${userCreated._id}`)
         .set('Authorization', `Bearer ${token}`)
+        .expect(200)
         .then((res) => {
-          expect(res.body.message).toEqual('Profile');
+          expect(res.body.user.userName).toEqual(user.userName);
+        });
+    });
+  });
+
+  describe('Update profile of a user', () => {
+    it('(PATCH) - /user/updateProfile/', async () => {
+      await request(app.getHttpServer())
+        .patch(`/user/updateProfile/${userCreated._id}`)
+        .send({ userName: 'updated' })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.updatedUser.userName).toEqual('updated');
+        });
+    });
+  });
+
+  describe('Update Image URL of a user', () => {
+    it('(PATCH) - /user/updateProfile/', async () => {
+      await request(app.getHttpServer())
+        .patch(`/user/updateProfile/${userCreated._id}`)
+        .send({ imageUrl: 'updated' })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.updatedUser.imageUrl).toEqual('updated');
         });
     });
   });

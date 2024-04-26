@@ -1,8 +1,7 @@
 import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
-import { Message } from '../../schemas/message.schema';
 import { Public } from '../auth/auth.guard';
 import { MessageService } from './message.service';
-import { MessageDto } from 'dto/message.dto';
+import { MessageDto } from '../../dto';
 
 @Controller('message')
 export class MessageController {

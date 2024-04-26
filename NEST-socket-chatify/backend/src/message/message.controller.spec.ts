@@ -12,7 +12,7 @@ describe('MessageController', () => {
   let mockMessage = {
     _id: '5f4e5f0f4a7f3b1d8c9f3d5e',
     senderId: '6620e7b9abe14b074b67e676',
-    receiverId: '6620e7c89366f3880ac69339',
+    recieverId: '6620e7c89366f3880ac69339',
     conversationId: '5f4e5f0f4a7f3b1d8c9f3d5e',
     message: 'Hello',
     createdAt: '2020-09-01T15:00:00.000Z',
@@ -53,7 +53,7 @@ describe('MessageController', () => {
     it('should return a new message', async () => {
       const newMessage = {
         senderId: '6620e7b9abe14b074b67e676',
-        receiverId: '6620e7c89366f3880ac69339',
+        recieverId: '6620e7c89366f3880ac69339',
         conversationId: '5f4e5f0f4a7f3b1d8c9f3d5e',
         message: 'Hello',
       };
@@ -71,7 +71,7 @@ describe('MessageController', () => {
           status: jest.fn().mockReturnThis(),
           json: jest.fn().mockReturnValue([mockMessage]),
         },
-        conversationId,
+        { conversationId },
       );
 
       expect(messageService.getMessages).toHaveBeenCalledWith(conversationId);

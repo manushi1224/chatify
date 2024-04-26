@@ -73,7 +73,7 @@ describe('AuthController', () => {
             .fn()
             .mockReturnValue({ message: 'Profile', user: mockUser }),
         },
-        { user: mockUser },
+        mockUser._id,
       );
       expect(result).toEqual({ message: 'Profile', user: mockUser });
     });
