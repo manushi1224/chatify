@@ -3,15 +3,11 @@ import userAvatar from "../assets/user.jpg";
 
 function ImageAvatar({ children, src, width }) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-4">
       <div className="rounded-full">
         <img
           alt="profile"
-          className={
-            width
-              ? `w-${width} h-${width} rounded-full`
-              : `w-8 h-8 rounded-full`
-          }
+          className={width ? "rounded-full" : "rounded-full h-8 w-8"}
           src={src ? src : userAvatar}
         />
       </div>

@@ -2,14 +2,21 @@ import axios from "axios";
 
 let url = process.env.REACT_APP_API_KEY;
 
-const sendNewMessage = async ({ conversationId, sender, text, token }) => {
+const sendNewMessage = async ({
+  conversationId,
+  senderId,
+  recieverId,
+  message,
+  token,
+}) => {
   try {
     return await axios.post(
-      `${url}/api/messages/`,
+      `${url}/message/createMessage`,
       {
+        senderId,
+        recieverId,
         conversationId,
-        sender,
-        text,
+        message,
       },
       {
         headers: {
@@ -22,11 +29,16 @@ const sendNewMessage = async ({ conversationId, sender, text, token }) => {
   }
 };
 
-const getAllMessages = async (conversationId) => {
+const getAllMessages = async (conversationId, token) => {
   try {
-    return await axios.get(`${url}/api/messages/${conversationId}`);
+    return await axios.get(`${url}/message/getMessages/${conversationId}`, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 

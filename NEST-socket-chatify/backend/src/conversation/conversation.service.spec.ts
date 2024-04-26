@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import mongoose, { Model } from 'mongoose';
@@ -6,6 +6,7 @@ import { Conversation } from '../../schemas/conversation.schema';
 import { User } from '../../schemas/user.schema';
 import { UserService } from '../user/user.service';
 import { ConversationService } from './conversation.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('ConversationService', () => {
   const mockConversation = {
@@ -31,6 +32,7 @@ describe('ConversationService', () => {
     getAllConversations: jest.fn(),
     getConversations: jest.fn(),
     deleteConversation: jest.fn(),
+    findOne: jest.fn(),
   };
 
   let mockUserService = {
@@ -45,6 +47,7 @@ describe('ConversationService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        JwtService,
         ConversationService,
         UserService,
         {
@@ -75,6 +78,20 @@ describe('ConversationService', () => {
 
       const result = await service.createConversation(newConversation);
       expect(result).toEqual(mockConversation);
+    });
+
+    it('should throw an error if conversation already exists', async () => {
+      const newConversation = {
+        senderId: '6620e7b9abe14b074b67e676',
+        recieverId: '6620e7c89366f3880ac69339',
+      };
+
+      jest.spyOn(model, 'create').mockImplementation(() => {
+        throw new ConflictException('Conversation already exists');
+      });
+      await expect(service.createConversation(newConversation)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 

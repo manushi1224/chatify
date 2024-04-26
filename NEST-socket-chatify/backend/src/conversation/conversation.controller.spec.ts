@@ -1,11 +1,10 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
-import { Conversation } from '../../schemas/conversation.schema';
+import { User } from '../../schemas/user.schema';
+import { UserService } from '../user/user.service';
 import { ConversationController } from './conversation.controller';
 import { ConversationService } from './conversation.service';
-import { UserService } from '../user/user.service';
-import { User } from '../../schemas/user.schema';
+import { JwtService } from '@nestjs/jwt';
 
 describe('ConversationController', () => {
   let conversationController: ConversationController;
@@ -44,10 +43,11 @@ describe('ConversationController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ConversationController],
       providers: [
+        JwtService,
         ConversationService,
         UserService,
         {
-          provide: getModelToken(Conversation.name),
+          provide: ConversationService,
           useValue: mockService,
         },
         {
@@ -86,14 +86,14 @@ describe('ConversationController', () => {
         mockRes,
       );
 
-      expect(mockService.create).toHaveBeenCalled();
+      expect(conversationService.createConversation).toHaveBeenCalled();
       expect(result).toEqual(mockConversation);
     });
   });
 
   describe('getAllConversationsByUserId', () => {
     beforeEach(() => {
-      jest.clearAllMocks(); // Reset all mock calls
+      jest.clearAllMocks();
     });
     mockService.getAllConversations = jest
       .fn()
@@ -104,7 +104,7 @@ describe('ConversationController', () => {
         mockUser._id,
         mockRes,
       );
-
+      expect(conversationService.getAllConversations).toHaveBeenCalled();
       expect(result).toEqual(mockConversation);
     });
   });
@@ -116,6 +116,7 @@ describe('ConversationController', () => {
         mockRes,
       );
 
+      expect(conversationService.getConversationByConvoId).toHaveBeenCalled();
       expect(result).toEqual(mockConversation);
     });
   });
@@ -124,10 +125,18 @@ describe('ConversationController', () => {
     it('should return a conversation by members', async () => {
       const result = await conversationController.getConversationByMembers(
         mockUser._id,
-        mockRes,
+        {
+          status: jest.fn().mockReturnThis(),
+          json: jest.fn().mockReturnValue({
+            pastUsers: [mockUser],
+            newUsers: [mockUser],
+          }),
+        },
       );
 
-      expect(result).toEqual(mockConversation);
+      expect(conversationService.getConversationByMembers).toHaveBeenCalled();
+      expect(Array.isArray(result.pastUsers)).toBe(true);
+      expect(Array.isArray(result.newUsers)).toBe(true);
     });
   });
 });

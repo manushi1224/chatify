@@ -18,7 +18,7 @@ describe('AuthController', () => {
   };
 
   let mockService = {
-    signIn: jest.fn().mockResolvedValueOnce(mockUser),
+    signIn: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -29,8 +29,12 @@ describe('AuthController', () => {
         UserService,
         JwtService,
         {
-          provide: getModelToken(User.name),
+          provide: AuthService,
           useValue: mockService,
+        },
+        {
+          provide: getModelToken(User.name),
+          useValue: mockUser,
         },
       ],
     }).compile();
@@ -42,11 +46,6 @@ describe('AuthController', () => {
   it('should be accepted', () => {
     expect(authController).toBeDefined();
   });
-
-  const mockRes = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn().mockReturnValue(mockUser),
-  };
 
   describe('signIn', () => {
     it('should return a new user', async () => {
@@ -60,6 +59,7 @@ describe('AuthController', () => {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnValue({ access_token: 'test' }),
       });
+      expect(authService.signIn).toHaveBeenCalled();
       expect(result).toEqual({ access_token: 'test' });
     });
   });
@@ -73,7 +73,7 @@ describe('AuthController', () => {
             .fn()
             .mockReturnValue({ message: 'Profile', user: mockUser }),
         },
-        { user: mockUser },
+        mockUser._id,
       );
       expect(result).toEqual({ message: 'Profile', user: mockUser });
     });

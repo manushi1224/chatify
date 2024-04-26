@@ -4,18 +4,20 @@ import { Toaster, toast } from "react-hot-toast";
 import { getConversationById } from "../../apis/conversationApis";
 import { sendNewMessage } from "../../apis/messageApis";
 import { getUserById } from "../../apis/userApis";
+import { SendButton } from "../../assets/svgs/AllSvgs";
+import { useSocket } from "../../context/SocketProvider";
 import userContext from "../../context/userContext";
 import renderDate from "../../lib/renderDate";
 import ChatBubble from "../../ui/ChatBubble";
-import { SendButton } from "../../assets/svgs/AllSvgs";
 import ChatNav from "../ChatNav/ChatNav";
 
-function ChatBox({ messages, conversationId, socket, recievedMessage }) {
+function ChatBox({ messages, conversationId, recievedMessage, onlineUsers }) {
   const user = useContext(userContext);
   const [chatRoomMessages, setChatRoomMessages] = useState();
   const [reciever, setReciever] = useState();
   const [newMessage, setNewMessage] = useState("");
   const [recieverId, setRecieverId] = useState();
+  const socket = useSocket();
   const chatRef = useRef();
   const dates = new Set();
 
@@ -27,27 +29,31 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
   useEffect(() => {
     const fetchRecieverId = async () => {
       try {
-        const { data } = await getConversationById(conversationId);
-        const recieverId = data.conversation.members.find(
+        const { data } = await getConversationById(conversationId, user.token);
+        const recieverId = data.members.find(
           (member) => member !== user.userId
         );
         setRecieverId(recieverId);
-      } catch (error) {}
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     fetchRecieverId();
-  }, [conversationId, user.userId]);
+  }, [conversationId, user.userId, user.token]);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { user } = await getUserById(recieverId);
-        setReciever(user);
-      } catch (error) {}
+        const { data } = await getUserById(user.token, recieverId);
+        setReciever(data);
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     fetchUser();
-  }, [recieverId]);
+  }, [recieverId, user.token]);
 
   useEffect(() => {
     setChatRoomMessages(messages);
@@ -60,33 +66,45 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
       toast.error("Message cannot be empty");
       return;
     }
-    if (!socket.current) {
-      toast.error("socket.current not connected");
+    if (!socket) {
+      toast.error("socket not connected");
       return;
     }
-    socket.current.emit("sendMessage", {
+    socket.emit("sendMessage", {
       senderId: user.userId,
       recieverId: recieverId,
-      text: newMessage,
+      message: newMessage,
     });
 
-    const { data } = await sendNewMessage({
-      conversationId,
-      sender: user.userId,
-      text: newMessage,
-      token: user.token,
-    });
-    setChatRoomMessages([...chatRoomMessages, data.messages]);
-    setNewMessage("");
+    try {
+      const { data } = await sendNewMessage({
+        conversationId,
+        senderId: user.userId,
+        recieverId: recieverId,
+        message: newMessage,
+        token: user.token,
+      });
+      setChatRoomMessages((prevMessages) => {
+        const updatedMessages = prevMessages
+          ? [...prevMessages, data.newMessage]
+          : [data.newMessage];
+        return updatedMessages;
+      });
+
+      setNewMessage("");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <div className="relative w-full overflow-y-hidden">
       {reciever && (
         <ChatNav
-          reciever={reciever}
+          reciever={reciever?.user}
           conversationId={conversationId}
           user={user}
+          onlineUsers={onlineUsers}
         />
       )}
       <Toaster></Toaster>
@@ -100,9 +118,9 @@ function ChatBox({ messages, conversationId, socket, recievedMessage }) {
             return (
               <div key={message._id} ref={chatRef}>
                 {!dates.has(dateNum) && renderDate(message, dateNum, dates)}
-                {message.sender !== user.userId ? (
+                {message.senderId !== user.userId ? (
                   <ChatBubble
-                    reciever_profile={reciever.imageUrl}
+                    reciever_profile={reciever.user.imageUrl}
                     message={message}
                     isSender={true}
                     key={index}

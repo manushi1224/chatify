@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { User } from '../../schemas/user.schema';
 import { UserService } from './user.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('UserService', () => {
   let service: UserService;
@@ -22,13 +23,14 @@ describe('UserService', () => {
     create: jest.fn(),
     findById: jest.fn(),
     findOne: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
+    save: jest.fn().mockResolvedValue(mockUser),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
+        JwtService,
         {
           provide: getModelToken(User.name),
           useValue: mockUserService,
@@ -50,10 +52,11 @@ describe('UserService', () => {
 
     it('should return a new user', async () => {
       jest.spyOn(service, 'hashPassword').mockResolvedValue('password');
+      jest.spyOn(service, 'createToken').mockResolvedValue('token');
       jest.spyOn(model, 'create').mockResolvedValue(mockUser as any);
 
       const result = await service.createNewUser(newUser as any);
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual({ newUser: mockUser, token: 'token' });
 
       expect(model.create).toHaveBeenCalledWith(newUser);
     });
@@ -74,6 +77,29 @@ describe('UserService', () => {
 
         const result = await service.getUserByEmail(mockUser.email);
         expect(result).toEqual(mockUser);
+      });
+    });
+
+    describe('updateUser', () => {
+      const updatedUser = {
+        userName: 'newUsername',
+      };
+
+      it('should return an updated user', async () => {
+        const mockUserWithSave = {
+          ...mockUser,
+          save: jest.fn().mockResolvedValue(mockUser),
+        };
+
+        jest
+          .spyOn(model, 'findById')
+          .mockResolvedValue(mockUserWithSave as any);
+
+        const result = await service.updateUserProfile(
+          updatedUser as any,
+          mockUser._id,
+        );
+        expect(result).toEqual(mockUserWithSave);
       });
     });
   });

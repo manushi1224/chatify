@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from '../../schemas/user.schema';
 import { UserModule } from '../user/user.module';
 import AuthController from './auth.controller';
-import { AuthService } from './auth.service';
-import { APP_GUARD } from '@nestjs/core';
 import { AuthGaurd } from './auth.guard';
+import { AuthService } from './auth.service';
 
 @Module({
   controllers: [AuthController],

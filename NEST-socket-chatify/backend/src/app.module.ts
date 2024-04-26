@@ -9,8 +9,17 @@ import { MessageModule } from './message/message.module';
 import { NotificationModule } from './notification/notification.module';
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
-    MongooseModule.forRoot(process.env.MONGODB_URL),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: !process.env.NODE_ENV
+        ? '.env'
+        : `.env.${process.env.NODE_ENV}`,
+    }),
+    MongooseModule.forRoot(
+      process.env.NODE_ENV !== 'test'
+        ? process.env.MONGODB_URL
+        : process.env.MONGODB_URL_TEST,
+    ),
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     AuthModule,
     UserModule,

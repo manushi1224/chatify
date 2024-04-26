@@ -1,17 +1,16 @@
 import React, { useContext } from "react";
-import userContext from "../context/userContext";
-import { useSocket } from "../context/SocketProvider";
-import ResponseButtons from "../lib/renderButtons";
 import {
   createNewConversation,
-  getConversationByUserId,
+  getConversationByUser,
 } from "../apis/conversationApis";
 import { sendNotification } from "../apis/notificationApis";
+import { useSocket } from "../context/SocketProvider";
+import userContext from "../context/userContext";
+import ResponseButtons from "../lib/renderButtons";
 
 function NotificationCard({
   ntfn,
   handleDelete,
-  conversations,
   fetchConversations,
   settingCurrentConversation,
 }) {
@@ -20,15 +19,18 @@ function NotificationCard({
 
   const fetchAllConversationByUser = async (notificationId) => {
     try {
-      const { data } = await getConversationByUserId(authUser.userId);
-      fetchConversations(data.conversations);
-      settingCurrentConversation(data.conversation._id);
+      const { data } = await getConversationByUser(
+        authUser.userId,
+        authUser.token
+      );
+      fetchConversations(data.allConversation);
+      settingCurrentConversation(data.allConversation._id);
     } catch (error) {}
     handleDelete(notificationId);
   };
 
   const handleAccept = async (recieverId, notificationId) => {
-    socket.current.emit("sendNotification", {
+    socket.emit("sendNotification", {
       senderId: authUser.userId,
       recieverId: recieverId,
       text: "Your request has been accepted",
@@ -49,10 +51,12 @@ function NotificationCard({
         recieverId,
         token: authUser.token,
       });
-      fetchConversations([...conversations, response.data.conversation]);
-      settingCurrentConversation(response.data.conversation._id);
+      fetchConversations((prev) => [...prev, response.data.createConversation]);
+      settingCurrentConversation(response.data.createConversation._id);
       handleDelete(notificationId);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleDecline = async (notificationId, senderId) => {
@@ -80,10 +84,7 @@ function NotificationCard({
     handleDelete(notificationId);
   };
   return (
-    <div
-      key={ntfn._id}
-      className="bg-primary-content rounded-md p-2 flex w-full justify-around mb-2"
-    >
+    <div className="bg-primary-content rounded-md p-2 flex w-full justify-around mb-2">
       <div>
         <span>{ntfn?.text}</span>
         <h3 className="font-bold text-lg">

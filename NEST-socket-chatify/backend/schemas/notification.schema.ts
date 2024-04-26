@@ -3,10 +3,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema({ timestamps: true })
 export class Notification {
   @Prop()
-  senderID: string;
+  senderId: string;
 
   @Prop()
-  receiverID: string;
+  recieverId: string;
 
   @Prop()
   text: string;

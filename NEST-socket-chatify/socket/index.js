@@ -29,12 +29,12 @@ io.on("connection", (socket) => {
   });
 
   // send message
-  socket.on("sendMessage", ({ senderId, recieverId, text }) => {
+  socket.on("sendMessage", ({ senderId, recieverId, message }) => {
     const user = getUser(recieverId);
     if (user === undefined) return console.log("User not found.");
     io.to(user.socketId).emit("getMessage", {
       senderId,
-      text,
+      message,
       createdAt: Date.now(),
     });
   });
@@ -108,6 +108,12 @@ io.on("connection", (socket) => {
     const user = getUser(data.recieverId);
     if (user === undefined) return console.log("User not found.");
     io.to(user.socketId).emit("disconnect_call", data);
+  });
+
+  //remove user
+  socket.on("removeUser", (userId) => {
+    tempUsers = users.filter((user) => user.userId !== userId);
+    io.emit("getUsers", tempUsers);
   });
 
   // disconnect

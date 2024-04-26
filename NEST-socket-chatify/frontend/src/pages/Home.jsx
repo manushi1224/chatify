@@ -13,6 +13,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 function Home() {
   const [conversations, setConversations] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [recievedMessage, setRecievedMessage] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
@@ -30,7 +31,7 @@ function Home() {
     socket.current.on("getMessage", (data) => {
       setRecievedMessage({
         sender: data.senderId,
-        text: data.text,
+        message: data.message,
         createdAt: data.createdAt,
       });
     });
@@ -44,11 +45,9 @@ function Home() {
       });
     });
     socket.current.on("join:room", (data) => {
-      console.log("A user joined the room");
       setRecieverId(data.recieverId);
     });
     socket.current.on("call:notification", async (data) => {
-      console.log("call notification", data);
       if (data.status === "offline") {
         setTimeout(() => {
           document.getElementById("my_call_modal").close();
@@ -81,8 +80,25 @@ function Home() {
   }, [user.token]);
 
   useEffect(() => {
-    socket.current.emit("addUser", user.userId);
-  }, [user]);
+    const handleFocus = () => {
+      socket.current.emit("addUser", user.userId);
+      socket.current.on("getUsers", (users) => {
+        setOnlineUsers(users.filter((user) => user !== user.userId));
+      });
+    };
+
+    const handleBlur = () => {
+      if (onlineUsers) socket.current.emit("removeUser", user.userId);
+    };
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, [user, onlineUsers]);
 
   const fetchConversations = (response) => {
     setConversations(response);
@@ -93,27 +109,31 @@ function Home() {
   };
 
   useEffect(() => {
+    if (!user.token) return;
     const fetchUsers = async () => {
       try {
-        const { data } = await getConversationByUser(user.userId);
-        fetchConversations(data.conversations);
+        const { data } = await getConversationByUser(user.userId, user.token);
+        fetchConversations(data);
       } catch (error) {
         console.log(error);
       }
     };
     fetchUsers();
-  }, [user.userId, notification]);
+  }, [user.userId, notification, user.token]);
 
   useEffect(() => {
+    if (!currentConversation) return;
     const fetchMessages = async () => {
       try {
-        const { data } = await getAllMessages(currentConversation);
-        setMessages(data.messages);
-      } catch (error) {}
+        const { data } = await getAllMessages(currentConversation, user.token);
+        setMessages(data);
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     fetchMessages();
-  }, [currentConversation]);
+  }, [currentConversation, user.token]);
 
   return (
     <>
@@ -155,7 +175,7 @@ function Home() {
               </div>
             </div>
             <div className="mt-2 h-full bg-primary-content p-2 rounded-xl">
-              {conversations.length !== 0 ? (
+              {conversations && conversations.length !== 0 ? (
                 conversations.map((con) => {
                   return (
                     <li
@@ -196,8 +216,8 @@ function Home() {
               <ChatBox
                 messages={messages}
                 conversationId={currentConversation}
-                socket={socket}
                 recievedMessage={recievedMessage}
+                onlineUsers={onlineUsers}
               />
             ) : (
               <h1 className="text-center">Select a conversation</h1>

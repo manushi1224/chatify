@@ -2,40 +2,47 @@ import axios from "axios";
 
 let url = process.env.REACT_APP_API_KEY;
 
-const getConversationById = async (conversationId) => {
+const getConversationById = async (conversationId, token) => {
+  try {
+    const res = await axios.get(
+      `${url}/conversation/getConversationByConvoId/${conversationId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
+    return res;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getConversationByUser = async (userId, token) => {
   try {
     return await axios.get(
-      `${url}/api/conversations/conversation/${conversationId}`
+      `${url}/conversation/getAllConversationsByUserId/${userId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
     );
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
-const getConversationByUserId = async (userId) => {
-  try {
-    const response = await axios.get(
-      `${url}/api/conversations/conversation/user/${userId}`
-    );
-    console.log("response", response.data.conversationId);
-    return response;
-  } catch (error) {
-    console.log("error", error);
-  }
-};
-
-const getConversationByUser = async (userId) => {
+const getAllConversationByMembers = async (userId, token) => {
   try {
     return await axios.get(
-      `${url}/api/conversations/conversationByUser/${userId}`
-    );
-  } catch (error) {}
-};
-
-const getAllConversationsByUser = async (userId) => {
-  try {
-    return await axios.get(
-      `${url}/api/conversations/allConversations/${userId}`
+      `${url}/conversation/getConversationByMembers/${userId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
     );
   } catch (error) {
     console.log(error);
@@ -45,7 +52,7 @@ const getAllConversationsByUser = async (userId) => {
 const createNewConversation = async ({ senderId, recieverId, token }) => {
   try {
     return await axios.post(
-      `${url}/api/conversations/`,
+      `${url}/conversation/createConversation`,
       {
         senderId,
         recieverId,
@@ -58,13 +65,13 @@ const createNewConversation = async ({ senderId, recieverId, token }) => {
     );
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
 export {
   getConversationById,
-  getConversationByUserId,
   getConversationByUser,
   createNewConversation,
-  getAllConversationsByUser,
+  getAllConversationByMembers,
 };

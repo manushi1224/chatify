@@ -1,0 +1,17 @@
+.sidebar-enter {
+    opacity: 0 !important;
+}
+
+.sidebar-enter-active {
+    opacity: 1 !important;
+    transition: opacity 300ms !important;
+}
+
+.sidebar-exit {
+    opacity: 1;
+}
+
+.sidebar-exit-active {
+    opacity: 0;
+    transition: opacity 300ms;
+}

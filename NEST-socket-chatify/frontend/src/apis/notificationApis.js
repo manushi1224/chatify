@@ -12,7 +12,7 @@ const sendNotification = async ({
 }) => {
   try {
     return await axios.post(
-      `${url}/api/notifications`,
+      `${url}/notification/createNotification`,
       {
         senderId,
         recieverId,
@@ -27,27 +27,37 @@ const sendNotification = async ({
       }
     );
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 };
 
 const deleteNotification = async (notificationId, token) => {
   try {
-    return await axios.delete(`${url}/api/notifications/${notificationId}`, {
+    console.log(notificationId, token);
+    return await axios.delete(
+      `${url}/notification/deleteNotification/${notificationId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const getAllNotifications = async (userId, token) => {
+  try {
+    return await axios.get(`${url}/notification/getNotification/${userId}`, {
       headers: {
         Authorization: "Bearer " + token,
       },
     });
   } catch (error) {
     console.log(error);
-  }
-};
-
-const getAllNotifications = async (userId) => {
-  try {
-    return await axios.get(`${url}/api/notifications/${userId}`);
-  } catch (error) {
-    console.log(error);
+    throw error;
   }
 };
 

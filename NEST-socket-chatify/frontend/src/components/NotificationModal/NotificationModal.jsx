@@ -1,7 +1,5 @@
 import React, { useContext } from "react";
-import {
-  deleteNotification
-} from "../../apis/notificationApis";
+import { deleteNotification } from "../../apis/notificationApis";
 import { NoNotification } from "../../assets/svgs/AllSvgs";
 import userContext from "../../context/userContext";
 import NotificationCard from "../../ui/NotificationCard";
@@ -21,7 +19,9 @@ function NotificationModal({
       if (res.status === 200) {
         setNotify(notify.filter((ntf) => ntf._id !== notificationId));
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -33,18 +33,17 @@ function NotificationModal({
         </button>
       </form>
       <div className="flex flex-col justify-between mt-4">
-        {notify && notify.length !== 0 ? (
-          notify.map((ntfn) => {
-            return (
-              <NotificationCard
-                ntfn={ntfn}
-                handleDelete={handleDelete}
-                fetchConversations={fetchConversations}
-                settingCurrentConversation={settingCurrentConversation}
-                conversation={conversations}
-              />
-            );
-          })
+        {notify.length ? (
+          notify.map((ntfn, index) => (
+            <NotificationCard
+              key={index}
+              ntfn={ntfn}
+              handleDelete={handleDelete}
+              fetchConversations={fetchConversations}
+              settingCurrentConversation={settingCurrentConversation}
+              conversation={conversations}
+            />
+          ))
         ) : (
           <span className="w-full">
             <NoNotification />

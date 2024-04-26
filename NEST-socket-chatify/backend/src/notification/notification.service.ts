@@ -14,7 +14,9 @@ export class NotificationService {
     if (!validId) {
       throw new NotFoundException('Invalid recieverId');
     }
-    const notification = await this.notificationModel.find({ recieverId });
+    const notification = await this.notificationModel.find({
+      recieverId,
+    });
     if (!notification) {
       throw new NotFoundException('No notification found');
     }

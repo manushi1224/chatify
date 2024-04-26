@@ -1,8 +1,8 @@
+import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import UserController from './user.controller';
+import { UserExistGuard } from './user.guard';
 import { UserService } from './user.service';
-import { getModelToken } from '@nestjs/mongoose';
-import { User } from '../../schemas/user.schema';
 
 describe('UserController', () => {
   let userController: UserController;
@@ -26,9 +26,14 @@ describe('UserController', () => {
       controllers: [UserController],
       providers: [
         UserService,
+        UserExistGuard,
         {
-          provide: getModelToken(User.name),
+          provide: UserService,
           useValue: mockService,
+        },
+        {
+          provide: getModelToken('User'),
+          useValue: {},
         },
       ],
     }).compile();
@@ -55,6 +60,7 @@ describe('UserController', () => {
         imageUrl: 'test',
       };
       const result = await userController.signUp(newUser, mockRes);
+      expect(userService.createNewUser).toHaveBeenCalledWith(newUser);
       expect(result).toEqual(mockUser);
     });
   });
