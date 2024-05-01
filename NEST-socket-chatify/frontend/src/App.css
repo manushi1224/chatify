@@ -1,17 +1,19 @@
-.sidebar-enter {
-    opacity: 0 !important;
+.image-stack {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(12, 1fr);
+    margin-top: -10rem;
 }
 
-.sidebar-enter-active {
-    opacity: 1 !important;
-    transition: opacity 300ms !important;
+.image-stack__item--bottom {
+    grid-column: 4 / -1;
+    grid-row: 1;
+    padding-left: 10%;
 }
 
-.sidebar-exit {
-    opacity: 1;
-}
-
-.sidebar-exit-active {
-    opacity: 0;
-    transition: opacity 300ms;
+.image-stack__item--top {
+    grid-row: 1;
+    grid-column: 1 / span 8;
+    padding-top: 80%;
+    z-index: 1;
 }

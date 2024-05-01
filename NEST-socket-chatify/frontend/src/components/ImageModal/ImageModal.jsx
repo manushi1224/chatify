@@ -49,9 +49,9 @@ function ImageModal({
         </div>
 
         <div className="modal-action">
-          <span method="dialog">
+          <form method="dialog">
             <button className="btn">Close</button>
-          </span>
+          </form>
         </div>
       </div>
     </dialog>
