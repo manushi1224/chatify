@@ -9,10 +9,13 @@ import { Toaster, toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 import { loginUser, signupUser } from "../apis/userApis";
-import NavBar from "../components/NavBar/NavBar";
-import userContext from "../context/userContext";
-import { storage } from "../firebase";
 import ImageModal from "../components/ImageModal/ImageModal";
+import userContext from "../context/userContext";
+import message from "../assets/message.png";
+import ImageNavbar from "../assets/chatify.png";
+import videoCall from "../assets/videoCall.png";
+import image from "../assets/2701007.jpg";
+import { storage } from "../firebase";
 
 function LogIn() {
   const authUser = useContext(userContext);
@@ -112,15 +115,35 @@ function LogIn() {
   };
 
   return (
-    <div>
-      <NavBar />
-      <div className="flex justify-center mt-40">
+    <div className="flex h-screen">
+      <div className="relative overflow-hidden md:flex w-1/2 i justify-around items-center ps-20">
+        {/* <div className="col-start-4 col-end-13 row-span-1 image-stack__item--bottom">
+          <img src={message} alt="" />
+        </div>
+        <div className="image-stack__item--top ">
+          <img src={videoCall} alt="" />
+        </div> */}
+        <img src={image} className="w-full" />
+      </div>
+      <div className="flex md:w-1/2 justify-center py-10 items-center bg-white">
+        {signupForm && (
+          <ImageModal
+            {...{
+              imagePreview,
+              setImagePreview,
+              setImageUpload,
+              uploadFile,
+              loading,
+            }}
+          />
+        )}
         <Toaster></Toaster>
         <form
-          className="card p-6 w-96 grid gap-4 border border-gray-200 rounded-lg bg-neutral-content"
+          className="card p-6 w-96 grid gap-4 border-2 border-gray-200 rounded-lg "
           onSubmit={(e) => handleSubmit(e)}
         >
-          <h1 className="font-bold text-3xl text-center my-5">
+          <img src={ImageNavbar} alt="Chatify" className="w-32 mx-auto" />
+          <h1 className="font-bold text-2xl text-center my-5">
             {signupForm ? "Create New Account" : "Login"}
           </h1>
           {signupForm && (
@@ -143,15 +166,6 @@ function LogIn() {
               >
                 Upload Profile Picture
               </span>
-              <ImageModal
-                {...{
-                  imagePreview,
-                  setImagePreview,
-                  setImageUpload,
-                  uploadFile,
-                  loading,
-                }}
-              />
             </>
           )}
           <label className="input input-bordered flex items-center gap-2">

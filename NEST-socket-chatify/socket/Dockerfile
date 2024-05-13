@@ -13,14 +13,11 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-# Copy the .env and .env.development files
-COPY .env .env.test ./
-
-# Creates a "dist" folder with the production build
-RUN npm run build
+# Copy the .env file
+COPY .env ./
 
 # Expose the port on which the app will run
-EXPOSE 5000
+EXPOSE 8900
 
-# Start the server using the development build
-CMD ["npm", "run", "start:dev"]
+# Start the server
+CMD ["npm", "run", "start"]
