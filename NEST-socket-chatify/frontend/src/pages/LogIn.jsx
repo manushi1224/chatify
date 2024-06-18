@@ -11,9 +11,9 @@ import { v4 as uuid } from "uuid";
 import { loginUser, signupUser } from "../apis/userApis";
 import ImageModal from "../components/ImageModal/ImageModal";
 import userContext from "../context/userContext";
-import message from "../assets/message.png";
+// import message from "../assets/message.png";
 import ImageNavbar from "../assets/chatify.png";
-import videoCall from "../assets/videoCall.png";
+// import videoCall from "../assets/videoCall.png";
 import image from "../assets/2701007.jpg";
 import { storage } from "../firebase";
 
@@ -116,7 +116,7 @@ function LogIn() {
 
   return (
     <div className="flex h-screen">
-      <div className="relative overflow-hidden md:flex w-1/2 i justify-around items-center ps-20">
+      <div className="relative items-center justify-around w-1/2 overflow-hidden md:flex i ps-20">
         {/* <div className="col-start-4 col-end-13 row-span-1 image-stack__item--bottom">
           <img src={message} alt="" />
         </div>
@@ -125,7 +125,7 @@ function LogIn() {
         </div> */}
         <img src={image} className="w-full" />
       </div>
-      <div className="flex md:w-1/2 justify-center py-10 items-center bg-white">
+      <div className="flex items-center justify-center py-10 bg-white md:w-1/2">
         {signupForm && (
           <ImageModal
             {...{
@@ -139,16 +139,16 @@ function LogIn() {
         )}
         <Toaster></Toaster>
         <form
-          className="card p-6 w-96 grid gap-4 border-2 border-gray-200 rounded-lg "
+          className="grid gap-4 p-6 border-2 border-gray-200 rounded-lg card w-96 "
           onSubmit={(e) => handleSubmit(e)}
         >
           <img src={ImageNavbar} alt="Chatify" className="w-32 mx-auto" />
-          <h1 className="font-bold text-2xl text-center my-5">
+          <h1 className="my-5 text-2xl font-bold text-center">
             {signupForm ? "Create New Account" : "Login"}
           </h1>
           {signupForm && (
             <>
-              <label className="input input-bordered flex items-center gap-2">
+              <label className="flex items-center gap-2 input input-bordered">
                 <input
                   type="text"
                   className="grow"
@@ -168,7 +168,7 @@ function LogIn() {
               </span>
             </>
           )}
-          <label className="input input-bordered flex items-center gap-2">
+          <label className="flex items-center gap-2 input input-bordered">
             <input
               type="text"
               className="grow"
@@ -178,7 +178,7 @@ function LogIn() {
               }}
             />
           </label>
-          <label className="input input-bordered flex items-center gap-2">
+          <label className="flex items-center gap-2 input input-bordered">
             <input
               type="password"
               className="grow"
@@ -200,7 +200,7 @@ function LogIn() {
                 Already A User?
                 <span
                   onClick={() => setSignupForm(!signupForm)}
-                  className="text-secondary cursor-pointer"
+                  className="cursor-pointer text-secondary"
                 >
                   &nbsp;Sign In
                 </span>
@@ -210,7 +210,7 @@ function LogIn() {
                 New User?
                 <span
                   onClick={() => setSignupForm(!signupForm)}
-                  className="text-secondary cursor-pointer"
+                  className="cursor-pointer text-secondary"
                 >
                   &nbsp;Sign Up
                 </span>
